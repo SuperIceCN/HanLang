@@ -3,3 +3,5 @@
 *.o
 *.wasm
 *.wat
+/.gradle/
+/build/

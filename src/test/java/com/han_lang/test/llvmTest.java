@@ -14,7 +14,6 @@ public class llvmTest {
     public void simpleLLVM(){
         // Stage 1: Initialize LLVM components
         LLVMInitializeCore(LLVMGetGlobalPassRegistry());
-
         // 初始化wasm编译工具链
         LLVMInitializeWebAssemblyAsmPrinter();
         LLVMInitializeWebAssemblyAsmParser();
@@ -33,6 +32,11 @@ public class llvmTest {
         LLVMContextRef context = LLVMContextCreate();
         LLVMModuleRef module = LLVMModuleCreateWithNameInContext("sum", context);
         LLVMBuilderRef builder = LLVMCreateBuilderInContext(context);
+
+        ///////////
+
+        ///////////
+
         LLVMTypeRef i32Type = LLVMInt32TypeInContext(context);
         PointerPointer<Pointer> sumArgumentTypes = new PointerPointer<>(2)
                 .put(0, i32Type)
@@ -45,14 +49,18 @@ public class llvmTest {
         LLVMAddTargetDependentFunctionAttr(sum, "wasm-export-name", LLVMGetValueName(sum).getString());
 
         LLVMValueRef lhs = LLVMGetParam(sum, 0);
-        LLVMSetValueName(lhs, "a");
+        LLVMSetValueName(lhs, "一个数");
         LLVMValueRef rhs = LLVMGetParam(sum, 1);
-        LLVMSetValueName(rhs, "b");
+        LLVMSetValueName(rhs, "另一个数");
         LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context, sum, "entry");
 
         LLVMPositionBuilderAtEnd(builder, entry);
         LLVMValueRef result = LLVMBuildAdd(builder, lhs, rhs, "result = lhs + rhs");
         LLVMBuildRet(builder, result);
+
+        //////////
+        LLVMBuildGlobalString(builder, "你", "testStr");
+        //////////
 
         LLVMDumpModule(module);
         if (LLVMVerifyModule(module, LLVMPrintMessageAction, error) != 0) {
