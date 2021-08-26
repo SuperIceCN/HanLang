@@ -1,21 +1,32 @@
 grammar HanCompiler;
 
-program: (expr)* EOF;
+@lexer::members {
+    public static boolean inType = false;
+}
+
+program: (expr | functionExpr | newtypeExpr OP_End)* (EOF | '<EOF>');
 
 operator1: OP_Not | OP_Plus | OP_Minus;
 operator2_p1: OP_Equal | OP_NotEqual | OP_Greater | OP_GreaterEqual | OP_Lower | OP_LowerEqual;
 operator2_p2: OP_Plus | OP_Minus;
-operator2_p3: OP_Mutiply | OP_Devide;
+operator2_p3: OP_Mutiply | OP_Divide | OP_Remain;
 operator2_p4: OP_Power;
 operator2_p5: OP_And | OP_Or;
-operator_all: operator1 | operator2_p1 | operator2_p2 | operator2_p3 | operator2_p4 | operator2_p5;
+operator_all: operator2_p1 | operator2_p2 | operator2_p3 | operator2_p4 | operator2_p5;
+flowExpr: KEY_Continue | KEY_Break | KEY_Return;
 type_basic: Type_Boolean | Type_Byte | Type_Float
     | Type_Int | Type_LongFloat | Type_LongInt
     | Type_LongLongFloat | Type_LongLongInt
     | Type_ShortFloat | Type_ShortInt | Type_String
-    | Type_Null
     ;
-expr: (varExpr | constAndSetExpr | setExpr | calcExpr | newtypeExpr) OP_End | ifelseExpr | whileExpr | functionExpr;
+expr: varExpr  OP_End               #InnerVarExpr
+    | constAndSetExpr OP_End        #InnerConstExpr
+    | setExpr OP_End                #InnerSetExpr
+    | calcExpr OP_End               #InnerCalcExpr
+    | ifelseExpr                    #InnerIfElseExpr
+    | whileExpr                     #InnerWhileExpr
+    | flowExpr OP_End               #InnerFlowExpr
+    ;
 varExpr: KEY_Var ID typeExpr;
 constAndSetExpr: KEY_Const ID typeExpr OP_Set calcExpr;
 newtypeExpr: KEY_Type ID typeExpr;
@@ -33,43 +44,52 @@ templeEntryPart: ID OP_Set calcExpr OP_Split;
 templeEntryEnd: ID OP_Set calcExpr OP_Split?;
 templeArrayPart: calcExpr OP_Split;
 templeArrayEnd: calcExpr OP_Split?;
-templeExpr: OP_BraketMatch_Left templeEntryPart* templeEntryEnd OP_BraketMatch_Right
-    | OP_BraketMatch_Left templeArrayPart* templeArrayEnd OP_BraketMatch_Right
-    | OP_BraketMatch_Left OP_BraketMatch_Right
+templeExpr: OP_BraketMatch_Left templeEntryPart* templeEntryEnd OP_BraketMatch_Right #EntryTemple
+    | OP_BraketMatch_Left templeArrayPart* templeArrayEnd OP_BraketMatch_Right       #ArrayTemple
+    | OP_BraketMatch_Left OP_BraketMatch_Right /*排错选项*/                            #EmptyTemple
     ;
-calcExpr: <assoc=right> operator1 calcExpr                              #C1Expr
+calcExpr: <assoc=right> operator1 calcExpr                              #C1Expr  //operator1
     | OP_Braket_Left calcExpr operator_all
-        calcExpr OP_Braket_Right                                        #C2ExprB
+        calcExpr OP_Braket_Right                                        #C2ExprB //operator with braket
+    | calcExpr KEY_Cast typeExpr KEY_Type                               #CastExpr//cast to another type
     | calcExpr OP_Call OP_Braket_Left
-        calcExpr? (OP_Split calcExpr)* OP_Braket_Right                  #IExpr
+        calcExpr? (OP_Split calcExpr)* OP_Braket_Right                  #IExpr   //invoke
     | calcExpr OP_Call
-        OP_BraketCall_Left calcExpr OP_BraketCall_Right                 #GCExpr //get by calc
-    | calcExpr OP_Call (INT | ID)                                       #GDExpr //get directly
-    | calcExpr operator2_p5 calcExpr                                    #C2Expr5
-    | calcExpr operator2_p4 calcExpr                                    #C2Expr4
-    | <assoc=right> calcExpr operator2_p3 calcExpr                      #C2Expr3
-    | calcExpr operator2_p2 calcExpr                                    #C2Expr2
-    | calcExpr operator2_p1 calcExpr                                    #C2Expr1
-    | (literal | ID | templeExpr)                                       #LExpr
-    | OP_Braket_Left (literal | ID) OP_Braket_Right                     #LBExpr
+        OP_BraketCall_Left calcExpr OP_BraketCall_Right                 #GCExpr  //get by calc
+    | calcExpr OP_Call (INT | ID)                                       #GDExpr  //get directly
+    | calcExpr operator2_p5 calcExpr                                    #C2Expr  //operator2
+    | calcExpr operator2_p4 calcExpr                                    #C2Expr  //operator2
+    | <assoc=right> calcExpr operator2_p3 calcExpr                      #C2Expr  //operator2
+    | calcExpr operator2_p2 calcExpr                                    #C2Expr  //operator2
+    | calcExpr operator2_p1 calcExpr                                    #C2Expr  //operator2
+    | (literal | ID)                                                    #LExpr   //literal, var or const
+    | templeExpr                                                        #TExpr   //temple
+    | OP_Braket_Left (literal | ID) OP_Braket_Right                     #LBExpr  //above with braket
+    ;
+decoratorExpr: Decorator_Caster OP_Braket_Left typeExpr
+        KEY_Cast typeExpr OP_Braket_Right                               #DecoratorCast
+    | Decorator_Operator OP_Braket_Left typeExpr
+        operator_all typeExpr OP_Equal typeExpr OP_Braket_Right         #DecoratorOp2
+    | Decorator_Operator OP_Braket_Left operator1
+        typeExpr OP_Equal typeExpr OP_Braket_Right                      #DecoratorOp1
     ;
 argPartExpr: ID typeExpr OP_Split;
 argEndExpr: ID typeExpr OP_Split?;
 returnExpr: KEY_Return calcExpr? OP_End;
-functionExpr: KEY_Function ID
-        OP_BraketType_Left (type_basic ~Type_Null | ID) OP_BraketType_Right
+functionExpr: decoratorExpr? KEY_Function ID
+        OP_BraketType_Left (type_basic ~KEY_Null | ID) OP_BraketType_Right
         OP_Braket_Left argPartExpr* argEndExpr OP_Braket_Right
         OP_BraketMatch_Left (expr | returnExpr)* OP_BraketMatch_Right                       #FunRA
-    | KEY_Function ID
-        (OP_BraketType_Left Type_Null OP_BraketType_Right)?
+    | decoratorExpr? KEY_Function ID
+        (OP_BraketType_Left KEY_Null OP_BraketType_Right)?
         OP_Braket_Left argPartExpr* argEndExpr OP_Braket_Right
         OP_BraketMatch_Left (expr | returnExpr)* OP_BraketMatch_Right                       #FunA
-    | KEY_Function ID
-        OP_BraketType_Left (type_basic ~Type_Null | ID) OP_BraketType_Right
+    | decoratorExpr? KEY_Function ID
+        OP_BraketType_Left (type_basic ~KEY_Null | ID) OP_BraketType_Right
         (OP_Braket_Left OP_Braket_Right)?
         OP_BraketMatch_Left (expr | returnExpr)* OP_BraketMatch_Right                       #FunR
-    | KEY_Function ID
-        (OP_BraketType_Left Type_Null? OP_BraketType_Right)?
+    | decoratorExpr? KEY_Function ID
+        (OP_BraketType_Left KEY_Null? OP_BraketType_Right)?
         (OP_Braket_Left OP_Braket_Right)?
         OP_BraketMatch_Left (expr | returnExpr)* OP_BraketMatch_Right                       #Fun
     ;
@@ -78,13 +98,11 @@ ifbodyExpr: OP_Braket_Left calcExpr OP_Braket_Right
 ifbodyEndExpr: (OP_Braket_Left OP_Braket_Right)?
       OP_BraketMatch_Left expr* OP_BraketMatch_Right;
 ifelseExpr: KEY_If ifbodyExpr
-    (KEY_Elif ifbodyExpr)*
-    (KEY_Else ifbodyEndExpr)?
+      (KEY_Elif ifbodyExpr)*
+      (KEY_Else ifbodyEndExpr)?
     ;
-continueExpr: KEY_Continue;
-breakExpr: KEY_Break;
 whileExpr: KEY_Loop OP_Braket_Left calcExpr OP_Braket_Right
-      OP_BraketMatch_Left (expr | continueExpr | breakExpr)* OP_BraketMatch_Right;
+      OP_BraketMatch_Left expr* OP_BraketMatch_Right;
 
 /**
  * 无用字符丢弃
@@ -106,20 +124,21 @@ OP_Power: '**';
 OP_Plus: '+';
 OP_Minus: '-';
 OP_Mutiply: '*';
-OP_Devide: '/';
-OP_Greater: '>' | '大于';
-OP_GreaterEqual: '>=' | '大于等于' | '大于或等于';
-OP_Lower: '<' | '小于';
-OP_LowerEqual: '<=' | '小于等于' | '小于或等于';
+OP_Divide: '/';
+OP_Remain: '%';
+OP_Greater: '>' {!inType}? | '大于';
+OP_GreaterEqual: '>=' {!inType}? | '大于等于' | '大于或等于';
+OP_Lower: '<' {!inType}? | '小于';
+OP_LowerEqual: '<=' {!inType}? | '小于等于' | '小于或等于';
 OP_NotEqual: '!=' | '不等于';
 OP_Equal: '==' | '等于';
-OP_Not: '不' | '非';
-OP_And: '并且' | '并';
-OP_Or: '或者' | '或' ;
+OP_Not: '不' | '非' | '!';
+OP_And: '并且' | '并' | '&&';
+OP_Or: '或者' | '或' | '||';
 OP_Call: '：' | ':';
 OP_Split: '，' | ',';
 OP_Set: '=';
-OP_End: '。' | ';';
+OP_End: '。' {inType = false;} | ';' {inType = false;};
 
 OP_Braket_Left: '（' | '(';
 OP_Braket_Right: '）' | ')';
@@ -127,39 +146,43 @@ OP_BraketCall_Left: '【' | '[';
 OP_BraketCall_Right: '】' | ']';
 OP_BraketType_Left: '《' | '<';
 OP_BraketType_Right: '》' | '>';
-OP_BraketMatch_Left: '｛' | '{';
-OP_BraketMatch_Right: '｝' | '}';
+OP_BraketMatch_Left: '｛' {inType = false;} | '{' {inType = false;};
+OP_BraketMatch_Right: '｝' {inType = false;} | '}' {inType = false;};
 
-KEY_Var: '变量';
-KEY_Const: '常量';
-KEY_Type: '类型';
-KEY_Function: '函数';
-KEY_Return: '返回';
-KEY_Break: '中断当前循环';
-KEY_Continue: '略过当前循环';
-KEY_Loop: '当';
-KEY_If: '如果';
-KEY_Elif: '否则如果';
-KEY_Else: '否则';
+KEY_Null: '空' | 'null';
+KEY_Var: '变量' {inType = true;} | 'var' {inType = true;};
+KEY_Const: '常量' {inType = true;} | 'const' {inType = true;};
+KEY_Type: '类型' {inType = !inType;} | 'type'{inType = !inType;};
+KEY_Function: '函数' {inType = true;} | 'function' {inType = true;};
+KEY_Return: '返回' | 'return';
+KEY_Break: '中断当前循环' | 'break';
+KEY_Continue: '略过当前循环' | 'continue';
+KEY_Loop: '当' | 'while';
+KEY_If: '如果' | 'if';
+KEY_Elif: '否则如果' | 'elif';
+KEY_Else: '否则' | 'else';
+KEY_Cast: '作为' {inType = true;} | 'as'{inType = true;};
 
-Type_Null: '空';
-Type_Byte: '字节';
-Type_Int: '整数';
-Type_LongInt: '长整数';
-Type_ShortInt: '短整数';
-Type_LongLongInt: '超长整数';
+Decorator_Caster: '#' 'caster' {inType = true;} | '#' '转换器' {inType = true;} ;
+Decorator_Operator: '#' 'operator' {inType = true;} | '#' '操作符' {inType = true;} ;
+
+Type_Byte: '字节' | 'byte';
+Type_Int: '整数' | 'int';
+Type_LongInt: '长整数' | 'lint';
+Type_ShortInt: '短整数' | 'sint';
+Type_LongLongInt: '超长整数' | 'llint';
 //没有无符号变量
 //Type_UnsignedByte: '无符号字节';
 //Type_UnsignedInt: '无符号整数';
 //Type_UnsignedLongInt: '无符号长整数';
 //Type_UnsignedShortInt: '无符号短整数';
 //Type_UnsignedLongLongInt: '无符号超长整数';
-Type_Boolean: '布尔';
-Type_ShortFloat: '低精度小数'; //half
-Type_Float: '小数'; //float
-Type_LongFloat: '高精度小数'; //double
-Type_LongLongFloat: '超高精度小数'; //fp128
-Type_String: '字符串' | '文本';
+Type_Boolean: '布尔' | 'bool';
+Type_ShortFloat: '低精度小数' | 'sdec'; //half
+Type_Float: '小数' | 'dec'; //float
+Type_LongFloat: '高精度小数' | 'ldec'; //double
+Type_LongLongFloat: '超高精度小数' | 'lldec'; //fp128
+Type_String: '字符串' | '文本' | 'string';
 
 //字面量
 literal: INT | DEC
@@ -177,13 +200,13 @@ INT2: ('0b'|'0B')[01]+;
 DEC: INT10 '.' [0-9]+;
 
 //布尔值
-BOOL: '真' | '假';
+BOOL: '真' | '假' | 'true' | 'false';
 
 //字符串
-STRING: '“' (ESCAPE_CHARS | ~[\r\n@])*? '”'
-    | '‘' (ESCAPE_CHARS | ~[\r\n@]) '’';
+STRING: ('“' | '"') (ESCAPE_CHARS | ~[\r\n@])*? ('”' | '"')
+    | ('‘' | '\'') (ESCAPE_CHARS | ~[\r\n@])*? ('’' | '\'');
 //转义特殊字符
-ESCAPE_CHARS: '@@' | '@“' | '@”' | '@‘' | '@’' | '@a' | '@b' | '@f' | '@n' | '@r' | '@t' | '@v';
+ESCAPE_CHARS: '@@' | '@“' | '@”' | '@‘' | '@’' | '@a' | '@b' | '@f' | '@n' | '@r' | '@t' | '@v' | '@"' | '@\'';
 
 //ID标识符
 // # $

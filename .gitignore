@@ -3,5 +3,6 @@
 *.o
 *.wasm
 *.wat
+*.exe
 /.gradle/
 /build/
