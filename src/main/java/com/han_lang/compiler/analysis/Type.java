@@ -40,6 +40,9 @@ public class Type {
      * @return 获取的类型
      */
     public static Type get(Global global, String name, HanCompilerParser.TypeExprContext typeCtx) throws TypeNotFoundException, TypeNestingException {
+        if (global.hasGlobalType(name)){
+            return global.getGlobalType(name);
+        }
         if (typeCtx instanceof HanCompilerParser.BasicTypeExprContext) {
             HanCompilerParser.BasicTypeExprContext ctx = ((HanCompilerParser.BasicTypeExprContext) typeCtx);
             String type = typeBasic2String(ctx.type_basic());
@@ -184,6 +187,11 @@ public class Type {
     public Type setType(String type) {
         this.type = type;
         return this;
+    }
+
+    public static String typeString(HanCompilerParser.TypeExprContext typeCtx){
+        String tmp = typeId(typeCtx);
+        return tmp.substring(1, tmp.length() - 1);
     }
 
     public static String typeId(HanCompilerParser.TypeExprContext typeCtx) {

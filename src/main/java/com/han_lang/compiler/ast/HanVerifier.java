@@ -104,7 +104,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                 || typeCtx instanceof HanCompilerParser.CustomArrayExprContext
                 || typeCtx instanceof HanCompilerParser.StructExprContext) {
             try {
-                String typeName = Type.typeId(typeCtx);
+                String typeName = Type.typeString(typeCtx);
                 global.addGlobalType(Type.get(global, typeName, typeCtx));
                 scope.addValue(Value.create(
                         ctx.ID().getText(),
@@ -160,7 +160,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                 || typeCtx instanceof HanCompilerParser.CustomArrayExprContext
                 || typeCtx instanceof HanCompilerParser.StructExprContext) {
             try {
-                String typeName = Type.typeId(typeCtx);
+                String typeName = Type.typeString(typeCtx);
                 global.addGlobalType(Type.get(global, typeName, typeCtx));
                 scope.addValue(Value.create(
                         valueName,

@@ -171,4 +171,18 @@ public class VerifyTest {
                 CharStreams.fromString("var a<int * 8>; var b<int> = a:[9.1];")
         );
     }
+
+    @Test
+    public void testGetArray2(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString("var a<b<int>, c<dec>>;")
+        );
+    }
+
+    @Test
+    public void testGetArray3(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString("var a<int>; a = (5.5 + 6 as <dec> type) as <int> type;")
+        );
+    }
 }
