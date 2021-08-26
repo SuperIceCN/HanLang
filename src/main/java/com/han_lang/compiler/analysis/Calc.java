@@ -37,6 +37,8 @@ public class Calc {
             return make(scope, (HanCompilerParser.GCExprContext) ctx);
         } else if (ctx instanceof HanCompilerParser.C2ExprBContext) {
             return make(scope, (HanCompilerParser.C2ExprBContext) ctx);
+        } else if (ctx instanceof HanCompilerParser.ECExprContext) {
+            return make(scope, (HanCompilerParser.ECExprContext) ctx);
         }
         return new Calc(new Type(scope.getGlobal(), "error", "<null>"), "error");
     }
@@ -196,6 +198,16 @@ public class Calc {
         }
     }
 
+    private static Calc make(Scope scope, HanCompilerParser.ECExprContext ecCtx) throws TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException {
+        String op = operatorId(ecCtx.operatorEnd());
+        TypeSet args = new TypeSet(create(scope, ecCtx.calcExpr()).getType());
+        if (scope.getGlobal().hasOperator(op, args)) {
+            return new Calc(scope.getGlobal().getOperator(op, args).returnType, ecCtx.getText());
+        } else {
+            throw new IllegalOperatorException(ecCtx.operatorEnd().getStart().getLine(), ecCtx.operatorEnd().getStart().getCharPositionInLine(), ecCtx.operatorEnd().getText(), args);
+        }
+    }
+
     public static String operatorId(HanCompilerParser.Operator1Context ctx) {
         if (ctx.OP_Minus() != null) {
             return "-";
@@ -261,6 +273,14 @@ public class Calc {
             return "&&";
         } else if (ctx.OP_Or() != null) {
             return "||";
+        } else {
+            return "";
+        }
+    }
+
+    public static String operatorId(HanCompilerParser.OperatorEndContext ctx) {
+        if (ctx.OP_EndCall() != null) {
+            return "|";
         } else {
             return "";
         }
