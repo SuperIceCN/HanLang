@@ -159,7 +159,7 @@ public class Calc {
                 return new Calc(target.getType().toSingleType(), gcCtx.getText());
             } else {
                 throw new TypeNotMatchException(getExpr.getStart().getLine(), getExpr.getStart().getCharPositionInLine(),
-                        get.getType().toArrayType(1).type, get.getType().type);
+                        scope.getGlobal().getGlobalType("int").toArrayType(1).type, get.getType().type);
             }
         } else {
             throw new TypeNotMatchException(targetExpr.getStart().getLine(), targetExpr.getStart().getCharPositionInLine(),
