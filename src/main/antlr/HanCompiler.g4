@@ -140,8 +140,8 @@ OP_Or: '或者' | '或' | '||';
 OP_Call: '：' | ':';
 OP_Split: '，' | ',';
 OP_Set: '=';
-OP_End: '。' {inType = false;} | ';' {inType = false;};
-OP_EndCall: '|';
+OP_End: '。'+ {inType = false;} | ';'+ {inType = false;};
+OP_EndCall: '|' ('_' | '-')?;
 
 OP_Braket_Left: '（' | '(';
 OP_Braket_Right: '）' | ')';
