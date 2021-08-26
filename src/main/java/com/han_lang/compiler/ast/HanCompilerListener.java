@@ -78,6 +78,16 @@ public interface HanCompilerListener extends ParseTreeListener {
 	 */
 	void exitOperator2_p5(HanCompilerParser.Operator2_p5Context ctx);
 	/**
+	 * Enter a parse tree produced by {@link HanCompilerParser#operatorEnd}.
+	 * @param ctx the parse tree
+	 */
+	void enterOperatorEnd(HanCompilerParser.OperatorEndContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HanCompilerParser#operatorEnd}.
+	 * @param ctx the parse tree
+	 */
+	void exitOperatorEnd(HanCompilerParser.OperatorEndContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link HanCompilerParser#operator_all}.
 	 * @param ctx the parse tree
 	 */
@@ -507,6 +517,18 @@ public interface HanCompilerListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitIExpr(HanCompilerParser.IExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ECExpr}
+	 * labeled alternative in {@link HanCompilerParser#calcExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterECExpr(HanCompilerParser.ECExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ECExpr}
+	 * labeled alternative in {@link HanCompilerParser#calcExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitECExpr(HanCompilerParser.ECExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code DecoratorCast}
 	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.

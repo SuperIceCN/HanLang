@@ -12,6 +12,7 @@ operator2_p2: OP_Plus | OP_Minus;
 operator2_p3: OP_Mutiply | OP_Divide | OP_Remain;
 operator2_p4: OP_Power;
 operator2_p5: OP_And | OP_Or;
+operatorEnd: OP_EndCall;
 operator_all: operator2_p1 | operator2_p2 | operator2_p3 | operator2_p4 | operator2_p5;
 flowExpr: KEY_Continue | KEY_Break | KEY_Return;
 type_basic: Type_Boolean | Type_Byte | Type_Float
@@ -65,6 +66,7 @@ calcExpr: <assoc=right> operator1 calcExpr                              #C1Expr 
     | (literal | ID)                                                    #LExpr   //literal, var or const
     | templeExpr                                                        #TExpr   //temple
     | OP_Braket_Left (literal | ID) OP_Braket_Right                     #LBExpr  //above with braket
+    | calcExpr operatorEnd                                              #ECExpr  //call in end
     ;
 decoratorExpr: Decorator_Caster OP_Braket_Left typeExpr
         KEY_Cast typeExpr OP_Braket_Right                               #DecoratorCast
@@ -139,6 +141,7 @@ OP_Call: '：' | ':';
 OP_Split: '，' | ',';
 OP_Set: '=';
 OP_End: '。' {inType = false;} | ';' {inType = false;};
+OP_EndCall: '|';
 
 OP_Braket_Left: '（' | '(';
 OP_Braket_Right: '）' | ')';

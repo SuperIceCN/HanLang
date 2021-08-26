@@ -100,6 +100,18 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOperatorEnd(HanCompilerParser.OperatorEndContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOperatorEnd(HanCompilerParser.OperatorEndContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOperator_all(HanCompilerParser.Operator_allContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -551,6 +563,18 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIExpr(HanCompilerParser.IExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterECExpr(HanCompilerParser.ECExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitECExpr(HanCompilerParser.ECExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

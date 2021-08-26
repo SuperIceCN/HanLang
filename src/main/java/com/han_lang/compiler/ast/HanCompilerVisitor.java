@@ -53,6 +53,12 @@ public interface HanCompilerVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitOperator2_p5(HanCompilerParser.Operator2_p5Context ctx);
 	/**
+	 * Visit a parse tree produced by {@link HanCompilerParser#operatorEnd}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperatorEnd(HanCompilerParser.OperatorEndContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link HanCompilerParser#operator_all}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -305,6 +311,13 @@ public interface HanCompilerVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIExpr(HanCompilerParser.IExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ECExpr}
+	 * labeled alternative in {@link HanCompilerParser#calcExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitECExpr(HanCompilerParser.ECExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code DecoratorCast}
 	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
