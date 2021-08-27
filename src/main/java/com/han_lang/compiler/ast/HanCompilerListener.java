@@ -322,57 +322,37 @@ public interface HanCompilerListener extends ParseTreeListener {
 	 */
 	void exitSetExpr(HanCompilerParser.SetExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HanCompilerParser#templeEntryPart}.
+	 * Enter a parse tree produced by {@link HanCompilerParser#templePart}.
 	 * @param ctx the parse tree
 	 */
-	void enterTempleEntryPart(HanCompilerParser.TempleEntryPartContext ctx);
+	void enterTemplePart(HanCompilerParser.TemplePartContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link HanCompilerParser#templeEntryPart}.
+	 * Exit a parse tree produced by {@link HanCompilerParser#templePart}.
 	 * @param ctx the parse tree
 	 */
-	void exitTempleEntryPart(HanCompilerParser.TempleEntryPartContext ctx);
+	void exitTemplePart(HanCompilerParser.TemplePartContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HanCompilerParser#templeEntryEnd}.
+	 * Enter a parse tree produced by {@link HanCompilerParser#templeEnd}.
 	 * @param ctx the parse tree
 	 */
-	void enterTempleEntryEnd(HanCompilerParser.TempleEntryEndContext ctx);
+	void enterTempleEnd(HanCompilerParser.TempleEndContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link HanCompilerParser#templeEntryEnd}.
+	 * Exit a parse tree produced by {@link HanCompilerParser#templeEnd}.
 	 * @param ctx the parse tree
 	 */
-	void exitTempleEntryEnd(HanCompilerParser.TempleEntryEndContext ctx);
+	void exitTempleEnd(HanCompilerParser.TempleEndContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link HanCompilerParser#templeArrayPart}.
-	 * @param ctx the parse tree
-	 */
-	void enterTempleArrayPart(HanCompilerParser.TempleArrayPartContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HanCompilerParser#templeArrayPart}.
-	 * @param ctx the parse tree
-	 */
-	void exitTempleArrayPart(HanCompilerParser.TempleArrayPartContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link HanCompilerParser#templeArrayEnd}.
-	 * @param ctx the parse tree
-	 */
-	void enterTempleArrayEnd(HanCompilerParser.TempleArrayEndContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link HanCompilerParser#templeArrayEnd}.
-	 * @param ctx the parse tree
-	 */
-	void exitTempleArrayEnd(HanCompilerParser.TempleArrayEndContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code EntryTemple}
+	 * Enter a parse tree produced by the {@code StructTemple}
 	 * labeled alternative in {@link HanCompilerParser#templeExpr}.
 	 * @param ctx the parse tree
 	 */
-	void enterEntryTemple(HanCompilerParser.EntryTempleContext ctx);
+	void enterStructTemple(HanCompilerParser.StructTempleContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code EntryTemple}
+	 * Exit a parse tree produced by the {@code StructTemple}
 	 * labeled alternative in {@link HanCompilerParser#templeExpr}.
 	 * @param ctx the parse tree
 	 */
-	void exitEntryTemple(HanCompilerParser.EntryTempleContext ctx);
+	void exitStructTemple(HanCompilerParser.StructTempleContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArrayTemple}
 	 * labeled alternative in {@link HanCompilerParser#templeExpr}.
@@ -565,6 +545,18 @@ public interface HanCompilerListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DecoratorOpEnd}
+	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DecoratorOpEnd}
+	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HanCompilerParser#argPartExpr}.
 	 * @param ctx the parse tree

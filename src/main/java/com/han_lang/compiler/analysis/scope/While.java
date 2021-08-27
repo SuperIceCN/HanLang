@@ -22,7 +22,7 @@ public class While implements Scope {
     @Expose
     public Calc condition;
 
-    public While(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, TypeNotMatchException, TypeNestingException {
+    public While(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr {
         this.setParentScope(parent);
         Calc tmp = Calc.create(this, condition);
         if(tmp != null && tmp.getType().equals(this.getGlobal().getGlobalType("<bool>"))){

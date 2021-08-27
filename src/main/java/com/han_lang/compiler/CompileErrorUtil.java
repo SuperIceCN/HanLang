@@ -92,4 +92,8 @@ public class CompileErrorUtil {
         newErr();
         System.err.printf("在 %d行%d列 处不允许类型嵌套 %s 。%n", line, column, type);
     }
+    public static void emptyTempleNotAllowed(int line, int column){
+        newErr();
+        System.err.printf("在 %d行%d列 处不允许空元组。%n", line, column);
+    }
 }

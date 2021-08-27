@@ -364,61 +364,37 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTempleEntryPart(HanCompilerParser.TempleEntryPartContext ctx) { }
+	@Override public void enterTemplePart(HanCompilerParser.TemplePartContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTempleEntryPart(HanCompilerParser.TempleEntryPartContext ctx) { }
+	@Override public void exitTemplePart(HanCompilerParser.TemplePartContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTempleEntryEnd(HanCompilerParser.TempleEntryEndContext ctx) { }
+	@Override public void enterTempleEnd(HanCompilerParser.TempleEndContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTempleEntryEnd(HanCompilerParser.TempleEntryEndContext ctx) { }
+	@Override public void exitTempleEnd(HanCompilerParser.TempleEndContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTempleArrayPart(HanCompilerParser.TempleArrayPartContext ctx) { }
+	@Override public void enterStructTemple(HanCompilerParser.StructTempleContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTempleArrayPart(HanCompilerParser.TempleArrayPartContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTempleArrayEnd(HanCompilerParser.TempleArrayEndContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTempleArrayEnd(HanCompilerParser.TempleArrayEndContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEntryTemple(HanCompilerParser.EntryTempleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEntryTemple(HanCompilerParser.EntryTempleContext ctx) { }
+	@Override public void exitStructTemple(HanCompilerParser.StructTempleContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -611,6 +587,18 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

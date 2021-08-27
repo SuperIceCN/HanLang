@@ -10,7 +10,7 @@ public class If extends IfElse {
     @Expose
     public Calc condition;
 
-    public If(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException {
+    public If(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException, EmptyTempleExpr {
         this.setParentScope(parent);
         Calc tmp = Calc.create(this, condition);
         if(tmp != null && tmp.getType().equals(this.getGlobal().getGlobalType("<bool>"))){

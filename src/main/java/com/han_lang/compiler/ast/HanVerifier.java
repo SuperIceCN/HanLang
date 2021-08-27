@@ -190,6 +190,8 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.typeNotMatch(e.line, e.column, e.require, e.given);
         } catch (TypeNestingException e) {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+        } catch (EmptyTempleExpr e) {
+            CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
         }
         Value value = scope.getValue(valueName);
         if(calc != null && !value.getType().equals(calc.getType())){
@@ -244,6 +246,8 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.typeNotMatch(e.line, e.column, e.require, e.given);
         } catch (TypeNestingException e) {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+        } catch (EmptyTempleExpr e) {
+            CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
         }
         if(calc != null && !value.getType().equals(calc.getType())){
             scope.removeValue(value);
@@ -300,6 +304,8 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                 CompileErrorUtil.symbolNotFound(e.line, e.column, e.value);
             } catch (TypeNestingException e) {
                 CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+            } catch (EmptyTempleExpr e) {
+                CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
             }
         }
         HanCompilerParser.IfbodyEndExprContext ifbodyCtx = ctx.ifbodyEndExpr();
@@ -363,6 +369,8 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.symbolNotFound(e.line, e.column, e.value);
         } catch (TypeNestingException e) {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+        } catch (EmptyTempleExpr e) {
+            CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
         }
         return null;
     }

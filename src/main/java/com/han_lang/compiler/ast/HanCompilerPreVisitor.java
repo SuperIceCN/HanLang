@@ -213,26 +213,6 @@ public class HanCompilerPreVisitor extends HanCompilerBaseVisitor<VisitResult>{
     }
 
     @Override
-    public VisitResult visitTempleEntryPart(HanCompilerParser.TempleEntryPartContext ctx) {
-        return super.visitTempleEntryPart(ctx);
-    }
-
-    @Override
-    public VisitResult visitTempleEntryEnd(HanCompilerParser.TempleEntryEndContext ctx) {
-        return super.visitTempleEntryEnd(ctx);
-    }
-
-    @Override
-    public VisitResult visitTempleArrayPart(HanCompilerParser.TempleArrayPartContext ctx) {
-        return super.visitTempleArrayPart(ctx);
-    }
-
-    @Override
-    public VisitResult visitTempleArrayEnd(HanCompilerParser.TempleArrayEndContext ctx) {
-        return super.visitTempleArrayEnd(ctx);
-    }
-
-    @Override
     public VisitResult visitLExpr(HanCompilerParser.LExprContext ctx) {
         return super.visitLExpr(ctx);
     }

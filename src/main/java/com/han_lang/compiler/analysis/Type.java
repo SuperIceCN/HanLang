@@ -133,7 +133,7 @@ public class Type {
         return tmp;
     }
 
-    private Type subtype(Type type) {
+    protected Type subtype(Type type) {
         this.subtypes.add(type);
         return this;
     }
@@ -167,7 +167,8 @@ public class Type {
     public boolean equals(Object obj) {
         if (obj instanceof Type) {
             Type another = (Type) obj;
-            if (another.type.equals(this.type) && another.subtypes.size() == this.subtypes.size()) {
+            if (another.type.replaceAll("\\*[0-9]+", "*n").equals(this.type.replaceAll("\\*[0-9]+", "*n"))
+                    && another.subtypes.size() == this.subtypes.size()) {
                 for (int i = 0; i < this.subtypes.size(); i++) {
                     if (!another.subtypes.get(i).equals(this.subtypes.get(i))) {
                         return false;

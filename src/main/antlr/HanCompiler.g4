@@ -41,13 +41,14 @@ typeExpr: OP_BraketType_Left type_basic OP_BraketType_Right             #BasicTy
       typeEntryEnd OP_BraketType_Right                                  #StructExpr
     ;
 setExpr: (ID | varExpr) OP_Set calcExpr;
-templeEntryPart: ID OP_Set calcExpr OP_Split;
-templeEntryEnd: ID OP_Set calcExpr OP_Split?;
-templeArrayPart: calcExpr OP_Split;
-templeArrayEnd: calcExpr OP_Split?;
-templeExpr: OP_BraketMatch_Left templeEntryPart* templeEntryEnd OP_BraketMatch_Right #EntryTemple
-    | OP_BraketMatch_Left templeArrayPart* templeArrayEnd OP_BraketMatch_Right       #ArrayTemple
+templePart: calcExpr OP_Split;
+templeEnd: calcExpr OP_Split?;
+templeExpr: OP_BraketMatch_Left templePart* templeEnd OP_BraketMatch_Right           #StructTemple
+    | OP_BraketMatch_Left '|'
+        templePart* templeEnd '|' OP_BraketMatch_Right                               #ArrayTemple
     | OP_BraketMatch_Left OP_BraketMatch_Right /*排错选项*/                            #EmptyTemple
+    | OP_BraketMatch_Left '|' '|' OP_BraketMatch_Right /*排错选项*/                    #EmptyTemple
+    | OP_BraketMatch_Left OP_Or OP_BraketMatch_Right /*排错选项*/                      #EmptyTemple
     ;
 calcExpr: <assoc=right> operator1 calcExpr                              #C1Expr  //operator1
     | OP_Braket_Left calcExpr operator_all
@@ -74,6 +75,8 @@ decoratorExpr: Decorator_Caster OP_Braket_Left typeExpr
         operator_all typeExpr OP_Equal typeExpr OP_Braket_Right         #DecoratorOp2
     | Decorator_Operator OP_Braket_Left operator1
         typeExpr OP_Equal typeExpr OP_Braket_Right                      #DecoratorOp1
+    | Decorator_Operator OP_Braket_Left typeExpr
+        operatorEnd OP_Equal typeExpr OP_Braket_Right                   #DecoratorOpEnd
     ;
 argPartExpr: ID typeExpr OP_Split;
 argEndExpr: ID typeExpr OP_Split?;
@@ -121,6 +124,9 @@ WS: ' ' | '\r\n' | '\n';
  * 非无效部分
  */
 
+Decorator_Caster: '#' ' '* 'caster' {inType = true;} | '#' ' '* '转换器' {inType = true;} ;
+Decorator_Operator: '#' ' '* 'operator' {inType = true;} | '#' ' '* '操作符' {inType = true;} ;
+
 //操作符和关键字
 OP_Power: '**';
 OP_Plus: '+';
@@ -141,7 +147,7 @@ OP_Call: '：' | ':';
 OP_Split: '，' | ',';
 OP_Set: '=';
 OP_End: '。'+ {inType = false;} | ';'+ {inType = false;};
-OP_EndCall: '|' ('_' | '-')?;
+OP_EndCall: '#';
 
 OP_Braket_Left: '（' | '(';
 OP_Braket_Right: '）' | ')';
@@ -165,9 +171,6 @@ KEY_If: '如果' | 'if';
 KEY_Elif: '否则如果' | 'elif';
 KEY_Else: '否则' | 'else';
 KEY_Cast: '作为' {inType = true;} | 'as'{inType = true;};
-
-Decorator_Caster: '#' 'caster' {inType = true;} | '#' '转换器' {inType = true;} ;
-Decorator_Operator: '#' 'operator' {inType = true;} | '#' '操作符' {inType = true;} ;
 
 Type_Byte: '字节' | 'byte';
 Type_Int: '整数' | 'int';
@@ -212,8 +215,8 @@ STRING: ('“' | '"') (ESCAPE_CHARS | ~[\r\n@])*? ('”' | '"')
 ESCAPE_CHARS: '@@' | '@“' | '@”' | '@‘' | '@’' | '@a' | '@b' | '@f' | '@n' | '@r' | '@t' | '@v' | '@"' | '@\'';
 
 //ID标识符
-// # $
+// $
 ID: IDStart IDPart*;
-IDStart: ~([0-9 @[\]\-+=()*&^%!~`?<>,.:;"'\\|！【】{}：。“”‘’/？《》，、·￥…（）；\r\n]);
-IDPart: ~([ @[\]\-+=()*&^%!~`?<>,.:;"'\\|！【】{}：。“”‘’/？《》，、·￥…（）；\r\n]);
+IDStart: ~([0-9 @[\]\-+=()*&^%!~`?<>,.:;"'\\|！#【】{}：。“”‘’/？《》，、·￥…（）；\r\n]);
+IDPart: ~([ @[\]\-+=()*&^%!~`?<>,.:;"'\\|！#【】{}：。“”‘’/？《》，、·￥…（）；\r\n]);
 

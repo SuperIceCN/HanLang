@@ -28,7 +28,7 @@ public class VerifyTest {
     @Test
     public void redefineType(){
         com.han_lang.compiler.Compiler.verify(
-                CharStreams.fromString("type A<int>;\ntype A<dec>;")
+                CharStreams.fromString("type A<int>;\ntype B<int>;")
         );
     }
 
@@ -183,6 +183,20 @@ public class VerifyTest {
     public void testGetArray3(){
         com.han_lang.compiler.Compiler.verify(
                 CharStreams.fromString("var a<int>; a = (5.5 + 6 as <dec> type) as <int> type;")
+        );
+    }
+
+    @Test
+    public void testTemple(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString("var a<int * 6>; a = {|2, 3, 11, 13|};")
+        );
+    }
+
+    @Test
+    public void testTemple2(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString("var a<b<int*6>, c<dec>>; a = {{|2, 3|}, 3 as <dec> type};")
         );
     }
 }

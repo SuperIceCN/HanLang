@@ -220,35 +220,21 @@ public class HanCompilerBaseVisitor<T> extends AbstractParseTreeVisitor<T> imple
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTempleEntryPart(HanCompilerParser.TempleEntryPartContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTemplePart(HanCompilerParser.TemplePartContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTempleEntryEnd(HanCompilerParser.TempleEntryEndContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTempleEnd(HanCompilerParser.TempleEndContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTempleArrayPart(HanCompilerParser.TempleArrayPartContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitTempleArrayEnd(HanCompilerParser.TempleArrayEndContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitEntryTemple(HanCompilerParser.EntryTempleContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStructTemple(HanCompilerParser.StructTempleContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -361,6 +347,13 @@ public class HanCompilerBaseVisitor<T> extends AbstractParseTreeVisitor<T> imple
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
