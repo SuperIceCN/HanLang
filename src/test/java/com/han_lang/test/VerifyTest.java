@@ -199,4 +199,32 @@ public class VerifyTest {
                 CharStreams.fromString("var a<b<int*6>, c<dec>>; a = {{|2, 3|}, 3 as <dec> type};")
         );
     }
+
+    @Test
+    public void testSimpleFunc1(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString(TestUtil.getCode("入口函数.hl"))
+        );
+    }
+
+    @Test
+    public void testSimpleFunc2(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString(TestUtil.getCode("求和.hl"))
+        );
+    }
+
+    @Test
+    public void testCaster(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString(TestUtil.getCode("自定义类型转换.hl"))
+        );
+    }
+
+    @Test
+    public void testOperator(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString(TestUtil.getCode("自定义操作符.hl"))
+        );
+    }
 }

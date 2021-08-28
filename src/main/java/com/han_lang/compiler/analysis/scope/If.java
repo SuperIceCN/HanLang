@@ -10,10 +10,10 @@ public class If extends IfElse {
     @Expose
     public Calc condition;
 
-    public If(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException, EmptyTempleExpr {
+    public If(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         this.setParentScope(parent);
         Calc tmp = Calc.create(this, condition);
-        if(tmp != null && tmp.getType().equals(this.getGlobal().getGlobalType("<bool>"))){
+        if(tmp != null && tmp.getType().equals(this.getGlobal().getGlobalType("bool"))){
             this.setCondition(tmp);
         }else {
             throw new TypeNotMatchException(condition.getStart().getLine(), condition.getStart().getCharPositionInLine(), "<bool>", tmp.getType().type);

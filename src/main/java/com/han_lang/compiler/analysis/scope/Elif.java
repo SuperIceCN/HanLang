@@ -11,11 +11,11 @@ public class Elif extends IfElse {
     @Expose
     public IfElse chainTo;
 
-    public Elif(IfElse chainTo, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException, EmptyTempleExpr {
+    public Elif(IfElse chainTo, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         this.setParentScope(chainTo.getParentScope());
         this.setChainTo(chainTo);
         Calc tmp = Calc.create(this, condition);
-        if(tmp != null && tmp.getType().equals(this.getGlobal().getGlobalType("<bool>"))){
+        if(tmp != null && tmp.getType().equals(this.getGlobal().getGlobalType("bool"))){
             this.setCondition(tmp);
         }else {
             throw new TypeNotMatchException(condition.getStart().getLine(), condition.getStart().getCharPositionInLine(), "<bool>", tmp.getType().type);

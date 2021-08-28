@@ -424,6 +424,54 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDecoratorCast(HanCompilerParser.DecoratorCastContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDecoratorCast(HanCompilerParser.DecoratorCastContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDecoratorOp2(HanCompilerParser.DecoratorOp2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDecoratorOp2(HanCompilerParser.DecoratorOp2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterLExpr(HanCompilerParser.LExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -551,54 +599,6 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitECExpr(HanCompilerParser.ECExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDecoratorCast(HanCompilerParser.DecoratorCastContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDecoratorCast(HanCompilerParser.DecoratorCastContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDecoratorOp2(HanCompilerParser.DecoratorOp2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDecoratorOp2(HanCompilerParser.DecoratorOp2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

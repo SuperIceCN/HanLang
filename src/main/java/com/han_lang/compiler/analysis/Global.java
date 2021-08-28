@@ -131,6 +131,14 @@ public class Global implements Scope{
         return funcs.containsKey(funcName);
     }
 
+    public void addGlobalFunc(Func func){
+        funcs.put(func.funcName, func);
+    }
+
+    public Func getGlobalFunc(String funcName){
+        return funcs.get(funcName);
+    }
+
     @Override
     public String toString() {
         GsonBuilder builder = new GsonBuilder();

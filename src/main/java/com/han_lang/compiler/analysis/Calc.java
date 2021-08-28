@@ -13,6 +13,8 @@ public class Calc {
     public Type resultType = null;
     @Expose
     public String text;
+    @Expose
+    public boolean isFunc = false;
 
     protected Calc(Type type, String text) {
         this.resultType = type;
@@ -23,7 +25,16 @@ public class Calc {
         return this.resultType;
     }
 
-    public static Calc create(Scope scope, HanCompilerParser.CalcExprContext ctx) throws IllegalCastException, TypeNotFoundException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr {
+    public boolean isFunc() {
+        return isFunc;
+    }
+
+    public Calc setFunc(boolean func) {
+        isFunc = func;
+        return this;
+    }
+
+    public static Calc create(Scope scope, HanCompilerParser.CalcExprContext ctx) throws IllegalCastException, TypeNotFoundException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr, FunctionArgsNotMatchException, FunctionNotFoundException {
         if (ctx instanceof HanCompilerParser.LExprContext) {
             return make(scope, (HanCompilerParser.LExprContext) ctx);
         } else if (ctx instanceof HanCompilerParser.CastExprContext) {
@@ -44,6 +55,8 @@ public class Calc {
             return make(scope, (HanCompilerParser.ECExprContext) ctx);
         }else if(ctx instanceof HanCompilerParser.TExprContext){
             return make(scope, (HanCompilerParser.TExprContext) ctx);
+        }else if(ctx instanceof HanCompilerParser.IExprContext){
+            return make(scope, (HanCompilerParser.IExprContext) ctx);
         }
         return new Calc(new Type(scope.getGlobal(), "error", "<null>"), "error");
     }
@@ -65,13 +78,15 @@ public class Calc {
             String valueName = declareCtx.ID().getText();
             if (scope.valueAvailable(valueName))
                 return new Calc(scope.getValue(valueName).valueType, text);
+            else if(scope.getGlobal().hasGlobalFunc(valueName))
+                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<function>"), text).setFunc(true);
             else
                 throw new ValueNotFoundException(declareCtx.ID().getSymbol().getLine(), declareCtx.ID().getSymbol().getCharPositionInLine(), valueName);
         }
         return null;
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.LBExprContext declareCtx) {
+    private static Calc make(Scope scope, HanCompilerParser.LBExprContext declareCtx) throws ValueNotFoundException {
         String text = declareCtx.getText();
         if (declareCtx.literal() != null) {
             HanCompilerParser.LiteralContext ctx = declareCtx.literal();
@@ -86,32 +101,37 @@ public class Calc {
             }
         } else if (declareCtx.ID() != null) {
             String valueName = declareCtx.ID().getText();
-            return new Calc(scope.getValue(valueName).valueType, text);
+            if (scope.valueAvailable(valueName))
+                return new Calc(scope.getValue(valueName).valueType, text);
+            else if(scope.getGlobal().hasGlobalFunc(valueName))
+                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<function>"), text).setFunc(true);
+            else
+                throw new ValueNotFoundException(declareCtx.ID().getSymbol().getLine(), declareCtx.ID().getSymbol().getCharPositionInLine(), valueName);
         }
         return null;
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.CastExprContext castCtx) throws TypeNotFoundException, IllegalCastException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr {
+    private static Calc make(Scope scope, HanCompilerParser.CastExprContext castCtx) throws TypeNotFoundException, IllegalCastException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         Calc calc = Calc.create(scope, castCtx.calcExpr());
         TypeSet casting = new TypeSet(calc.getType(), Type.get(scope.getGlobal(), Type.typeString(castCtx.typeExpr()), castCtx.typeExpr()));
         if (scope.getGlobal().hasCaster(casting)) {
-            return new Calc(scope.getGlobal().getCaster(casting).returnType, castCtx.getText());
+            return new Calc(scope.getGlobal().getCaster(casting).setUsed().returnType, castCtx.getText());
         } else {
             throw new IllegalCastException(castCtx.KEY_Cast().getSymbol().getLine(), castCtx.KEY_Cast().getSymbol().getCharPositionInLine(), calc.getType().type, Type.typeId(castCtx.typeExpr()));
         }
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.C1ExprContext c1Ctx) throws TypeNotFoundException, IllegalCastException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr {
+    private static Calc make(Scope scope, HanCompilerParser.C1ExprContext c1Ctx) throws TypeNotFoundException, IllegalCastException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         String op = operatorId(c1Ctx.operator1());
         TypeSet args = new TypeSet(create(scope, c1Ctx.calcExpr()).getType());
         if (scope.getGlobal().hasOperator(op, args)) {
-            return new Calc(scope.getGlobal().getOperator(op, args).returnType, c1Ctx.getText());
+            return new Calc(scope.getGlobal().getOperator(op, args).setUsed().returnType, c1Ctx.getText());
         } else {
             throw new IllegalOperatorException(c1Ctx.operator1().getStart().getLine(), c1Ctx.operator1().getStart().getCharPositionInLine(), c1Ctx.operator1().getText(), args);
         }
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.C2ExprContext c2Ctx) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr {
+    private static Calc make(Scope scope, HanCompilerParser.C2ExprContext c2Ctx) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         String op = "";
         Token token = c2Ctx.getStart();//这里为了防止极端情况NPException
         if (c2Ctx.operator2_p1() != null) {
@@ -132,13 +152,13 @@ public class Calc {
         }
         TypeSet args = new TypeSet(create(scope, c2Ctx.calcExpr(0)).getType(), create(scope, c2Ctx.calcExpr(1)).getType());
         if (scope.getGlobal().hasOperator(op, args)) {
-            return new Calc(scope.getGlobal().getOperator(op, args).returnType, c2Ctx.getText());
+            return new Calc(scope.getGlobal().getOperator(op, args).setUsed().returnType, c2Ctx.getText());
         } else {
             throw new IllegalOperatorException(token.getLine(), token.getCharPositionInLine(), token.getText(), args);
         }
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.C2ExprBContext c2bCtx) throws TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, EmptyTempleExpr {
+    private static Calc make(Scope scope, HanCompilerParser.C2ExprBContext c2bCtx) throws TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         String op = "";
         Token token = c2bCtx.start;//这里为了防止极端情况NPException
         if (c2bCtx.operator_all().operator2_p1() != null) {
@@ -159,13 +179,13 @@ public class Calc {
         }
         TypeSet args = new TypeSet(create(scope, c2bCtx.calcExpr(0)).getType(), create(scope, c2bCtx.calcExpr(1)).getType());
         if (scope.getGlobal().hasOperator(op, args)) {
-            return new Calc(scope.getGlobal().getOperator(op, args).returnType, c2bCtx.getText());
+            return new Calc(scope.getGlobal().getOperator(op, args).setUsed().returnType, c2bCtx.getText());
         } else {
             throw new IllegalOperatorException(token.getLine(), token.getCharPositionInLine(), token.getText(), args);
         }
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.GDExprContext gdCtx) throws IllegalOperatorException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr {
+    private static Calc make(Scope scope, HanCompilerParser.GDExprContext gdCtx) throws IllegalOperatorException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         Calc calc = Calc.create(scope, gdCtx.calcExpr());
         if (gdCtx.ID() != null) {
             Type got = calc.getType().expand().matchSubtype(gdCtx.ID().getText());
@@ -176,16 +196,20 @@ public class Calc {
             }
         } else {
             Type got = calc.getType();
-            if (got.isArray()) {
-                return new Calc(got.toSingleType(), gdCtx.getText());
+            if(got != null){
+                if (got.isArray()) {
+                    return new Calc(got.toSingleType(), gdCtx.getText());
+                } else {
+                    throw new TypeNotMatchException(gdCtx.getStart().getLine(), gdCtx.getStart().getCharPositionInLine(),
+                            got.toArrayType(1).type, got.type);
+                }
             } else {
-                throw new TypeNotMatchException(gdCtx.ID().getSymbol().getLine(), gdCtx.ID().getSymbol().getCharPositionInLine(),
-                        got.toArrayType(1).type, got.type);
+                throw new ValueNotFoundException(gdCtx.ID().getSymbol().getLine(), gdCtx.ID().getSymbol().getCharPositionInLine(), gdCtx.ID().getText());
             }
         }
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.GCExprContext gcCtx) throws TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, EmptyTempleExpr {
+    private static Calc make(Scope scope, HanCompilerParser.GCExprContext gcCtx) throws TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         HanCompilerParser.CalcExprContext targetExpr = gcCtx.calcExpr(0);
         Calc target = Calc.create(scope, targetExpr);
         if (target.getType().isArray()) {
@@ -203,17 +227,17 @@ public class Calc {
         }
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.ECExprContext ecCtx) throws TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, EmptyTempleExpr {
+    private static Calc make(Scope scope, HanCompilerParser.ECExprContext ecCtx) throws TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
         String op = operatorId(ecCtx.operatorEnd());
         TypeSet args = new TypeSet(create(scope, ecCtx.calcExpr()).getType());
         if (scope.getGlobal().hasOperator(op, args)) {
-            return new Calc(scope.getGlobal().getOperator(op, args).returnType, ecCtx.getText());
+            return new Calc(scope.getGlobal().getOperator(op, args).setUsed().returnType, ecCtx.getText());
         } else {
             throw new IllegalOperatorException(ecCtx.operatorEnd().getStart().getLine(), ecCtx.operatorEnd().getStart().getCharPositionInLine(), ecCtx.operatorEnd().getText(), args);
         }
     }
 
-    private static Calc make(Scope scope, HanCompilerParser.TExprContext tCtx) throws EmptyTempleExpr, TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException {
+    private static Calc make(Scope scope, HanCompilerParser.TExprContext tCtx) throws EmptyTempleExpr, TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, FunctionNotFoundException, FunctionArgsNotMatchException {
         HanCompilerParser.TempleExprContext templeExpr = tCtx.templeExpr();
         if(templeExpr instanceof HanCompilerParser.EmptyTempleContext){
             throw new EmptyTempleExpr(templeExpr.getStart().getLine(), templeExpr.getStart().getCharPositionInLine());
@@ -255,6 +279,42 @@ public class Calc {
             return new Calc(type, ctx.getText());
         }
         return null;
+    }
+
+    public static Calc make(Scope scope, HanCompilerParser.IExprContext iCtx) throws EmptyTempleExpr, TypeNotMatchException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, IllegalOperatorException, TypeNestingException, FunctionNotFoundException, FunctionArgsNotMatchException {
+        List<HanCompilerParser.CalcExprContext> calcCtxList = iCtx.calcExpr();
+        HanCompilerParser.CalcExprContext funcCalcExpr = calcCtxList.get(0);
+        Calc target = create(scope, funcCalcExpr);
+        if(target.isFunc()){
+            Func func = scope.getGlobal().getGlobalFunc(target.text).setUsed();
+            List<Calc> argsCalc = new ArrayList<>();
+            for(int i=1;i<calcCtxList.size();i++){
+                argsCalc.add(Calc.create(scope, calcCtxList.get(i)));
+            }
+            TypeSet signatureArgs = func.argumentTypes;
+            TypeSet givenArgs = new TypeSet(argsCalc.stream().map(Calc::getType).toArray(Type[]::new));
+            if(givenArgs.equals(signatureArgs)){
+                return new Calc(func.returnType, iCtx.getText());
+            }else {
+                throw new FunctionArgsNotMatchException(iCtx.OP_Braket_Left().getSymbol().getLine(), iCtx.OP_Braket_Left().getSymbol().getCharPositionInLine(), signatureArgs.toString(), givenArgs.toString());
+            }
+        }else {
+            throw new FunctionNotFoundException(funcCalcExpr.getStart().getLine(), funcCalcExpr.getStart().getCharPositionInLine(), funcCalcExpr.getText());
+        }
+    }
+
+    public static String operatorId(HanCompilerParser.Operator_allContext ctx) {
+        if(ctx.operator2_p1() != null){
+            return operatorId(ctx.operator2_p1());
+        }else if(ctx.operator2_p2() != null){
+            return operatorId(ctx.operator2_p2());
+        }else if(ctx.operator2_p3() != null){
+            return operatorId(ctx.operator2_p3());
+        }else if(ctx.operator2_p4() != null){
+            return operatorId(ctx.operator2_p4());
+        }else{
+            return operatorId(ctx.operator2_p5());
+        }
     }
 
     public static String operatorId(HanCompilerParser.Operator1Context ctx) {

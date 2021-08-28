@@ -36,7 +36,7 @@ public class TypeSet {
     public int hashCode() {
         int i = 0;
         for(Type type : types){
-            i += type.hashCode();
+            i += type.type.hashCode();
         }
         return i;
     }

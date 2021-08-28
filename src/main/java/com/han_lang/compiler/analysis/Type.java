@@ -148,7 +148,12 @@ public class Type {
     }
 
     public Type expand(){
-        return global.getGlobalType(this.type.substring(1, this.type.length() -1));
+        Type type = global.getGlobalType(this.type.substring(1, this.type.length() -1));
+        return type == null ? this : type;
+    }
+
+    public Type trim(){
+        return global.hasGlobalType(this.name) ? Type.getAbstract(this.global, this.name, "<" + this.name + ">") : this;
     }
 
     @Override

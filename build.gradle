@@ -1,3 +1,9 @@
+import java.nio.file.CopyOption
+import java.nio.file.FileSystemException
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+
 plugins {
     id 'java'
 }
@@ -21,6 +27,18 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+test.beforeTest {
+    Files.list(Paths.get("${projectDir}/src/test/resources")).forEach({e ->
+        try{
+            Files.copy(e, Paths.get("${buildDir}/classes/java/test/${e.getFileName()}")
+                    , StandardCopyOption.REPLACE_EXISTING)
+        }catch(FileSystemException ignored){
+            //ignore
+        }
+
+    })
 }
 
 tasks.withType(JavaCompile) {

@@ -1,43 +1,24 @@
 package com.han_lang.compiler.analysis.scope;
 
 import com.google.gson.annotations.Expose;
-import com.han_lang.compiler.analysis.Calc;
-import com.han_lang.compiler.analysis.Global;
-import com.han_lang.compiler.analysis.Scope;
-import com.han_lang.compiler.analysis.Value;
-import com.han_lang.compiler.analysis.exception.*;
-import com.han_lang.compiler.ast.HanCompilerParser;
+import com.han_lang.compiler.analysis.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class While implements Scope {
+public class FuncScope implements Scope {
     Scope parent;
+    Func func;
     @Expose
     public List<Scope> childrenScope = new ArrayList<>();
     @Expose
     public Map<String, Value> values = new HashMap<>();
-    @Expose
-    public Calc condition;
 
-    public While(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
-        this.setParentScope(parent);
-        Calc tmp = Calc.create(this, condition);
-        if(tmp != null && tmp.getType().equals(this.getGlobal().getGlobalType("bool"))){
-            this.setCondition(tmp);
-        }else {
-            throw new TypeNotMatchException(condition.getStart().getLine(), condition.getStart().getCharPositionInLine(), "<bool>", tmp.getType().type);
-        }
-    }
-
-    public Calc getCondition() {
-        return condition;
-    }
-
-    public void setCondition(Calc condition) {
-        this.condition = condition;
+    public FuncScope(Func func){
+        this.func = func;
+        this.parent = func.global;
     }
 
     @Override

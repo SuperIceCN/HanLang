@@ -1,0 +1,14 @@
+function sum<int>(a<int>, b<int>){
+    return a + b;
+}
+function inc<int>(a<int>){
+    return a + 1;
+}
+function gt<bool>(a<int>, b<int>){
+    if(a > b){
+        return true;
+    }else {
+        return gt:(b, a);
+    }
+}
+var out<int> = sum:(inc:(inc:(2)), inc:(sum:(2, 6)));

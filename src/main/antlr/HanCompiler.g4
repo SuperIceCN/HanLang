@@ -14,7 +14,7 @@ operator2_p4: OP_Power;
 operator2_p5: OP_And | OP_Or;
 operatorEnd: OP_EndCall;
 operator_all: operator2_p1 | operator2_p2 | operator2_p3 | operator2_p4 | operator2_p5;
-flowExpr: KEY_Continue | KEY_Break | KEY_Return;
+flowExpr: KEY_Continue | KEY_Break | KEY_Return calcExpr?;
 type_basic: Type_Boolean | Type_Byte | Type_Float
     | Type_Int | Type_LongFloat | Type_LongInt
     | Type_LongLongFloat | Type_LongLongInt
@@ -50,6 +50,15 @@ templeExpr: OP_BraketMatch_Left templePart* templeEnd OP_BraketMatch_Right      
     | OP_BraketMatch_Left '|' '|' OP_BraketMatch_Right /*排错选项*/                    #EmptyTemple
     | OP_BraketMatch_Left OP_Or OP_BraketMatch_Right /*排错选项*/                      #EmptyTemple
     ;
+decoratorExpr: Decorator_Caster OP_Braket_Left typeExpr
+        KEY_Cast typeExpr OP_Braket_Right                               #DecoratorCast
+    | Decorator_Operator OP_Braket_Left typeExpr
+        operator_all typeExpr OP_Set typeExpr OP_Braket_Right         #DecoratorOp2
+    | Decorator_Operator OP_Braket_Left operator1
+        typeExpr OP_Set typeExpr OP_Braket_Right                      #DecoratorOp1
+    | Decorator_Operator OP_Braket_Left typeExpr
+        operatorEnd OP_Set typeExpr OP_Braket_Right                   #DecoratorOpEnd
+    ;
 calcExpr: <assoc=right> operator1 calcExpr                              #C1Expr  //operator1
     | OP_Braket_Left calcExpr operator_all
         calcExpr OP_Braket_Right                                        #C2ExprB //operator with braket
@@ -69,20 +78,11 @@ calcExpr: <assoc=right> operator1 calcExpr                              #C1Expr 
     | OP_Braket_Left (literal | ID) OP_Braket_Right                     #LBExpr  //above with braket
     | calcExpr operatorEnd                                              #ECExpr  //call in end
     ;
-decoratorExpr: Decorator_Caster OP_Braket_Left typeExpr
-        KEY_Cast typeExpr OP_Braket_Right                               #DecoratorCast
-    | Decorator_Operator OP_Braket_Left typeExpr
-        operator_all typeExpr OP_Equal typeExpr OP_Braket_Right         #DecoratorOp2
-    | Decorator_Operator OP_Braket_Left operator1
-        typeExpr OP_Equal typeExpr OP_Braket_Right                      #DecoratorOp1
-    | Decorator_Operator OP_Braket_Left typeExpr
-        operatorEnd OP_Equal typeExpr OP_Braket_Right                   #DecoratorOpEnd
-    ;
 argPartExpr: ID typeExpr OP_Split;
 argEndExpr: ID typeExpr OP_Split?;
 returnExpr: KEY_Return calcExpr? OP_End;
 functionExpr: decoratorExpr? KEY_Function ID
-        OP_BraketType_Left (type_basic ~KEY_Null | ID) OP_BraketType_Right
+        OP_BraketType_Left (type_basic | ID) OP_BraketType_Right
         OP_Braket_Left argPartExpr* argEndExpr OP_Braket_Right
         OP_BraketMatch_Left (expr | returnExpr)* OP_BraketMatch_Right                       #FunRA
     | decoratorExpr? KEY_Function ID
@@ -90,7 +90,7 @@ functionExpr: decoratorExpr? KEY_Function ID
         OP_Braket_Left argPartExpr* argEndExpr OP_Braket_Right
         OP_BraketMatch_Left (expr | returnExpr)* OP_BraketMatch_Right                       #FunA
     | decoratorExpr? KEY_Function ID
-        OP_BraketType_Left (type_basic ~KEY_Null | ID) OP_BraketType_Right
+        OP_BraketType_Left (type_basic | ID) OP_BraketType_Right
         (OP_Braket_Left OP_Braket_Right)?
         OP_BraketMatch_Left (expr | returnExpr)* OP_BraketMatch_Right                       #FunR
     | decoratorExpr? KEY_Function ID

@@ -7,12 +7,14 @@ import com.han_lang.compiler.analysis.scope.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class HanVerifier extends HanCompilerBaseVisitor<Void> {
     Global global;
     ParseTreeProperty<Scope> ast2scope = new ParseTreeProperty<>();
+    ParseTreeProperty<Type> ast2returnType = new ParseTreeProperty<>();
 
     public HanVerifier(Global global){
         this.global = global;
@@ -20,8 +22,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
 
     @Override
     public Void visitProgram(HanCompilerParser.ProgramContext ctx) {
-        boolean ret = false;
-        //声明所有类型和函数
+        //声明所有类型
         for (HanCompilerParser.NewtypeExprContext newtypeExpr : ctx.newtypeExpr()){
             String typeName = newtypeExpr.ID().getText();
             if(global.globalTypeDeclared(typeName)){
@@ -33,24 +34,41 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                 global.declareGlobalType(typeName, Type.getAbstract(global, typeName, "<" + typeName + ">"));
             }
         }
-        //实现所有类型和函数
-        for (HanCompilerParser.NewtypeExprContext newtypeExpr : ctx.newtypeExpr()){
-            visit(global, newtypeExpr);
-        }
-        for (HanCompilerParser.ExprContext expr : ctx.expr()) {
-            if(expr instanceof HanCompilerParser.InnerFlowExprContext){
-                if(((HanCompilerParser.InnerFlowExprContext) expr).flowExpr().KEY_Return() != null){
-                    ret = true; continue;
-                }else {
-                    CompileErrorUtil.illegalControlExpr(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
+        //实现所有类型
+        ctx.newtypeExpr().forEach(newtypeExpr -> visit(global, newtypeExpr));
+        //声明所有函数
+        for (HanCompilerParser.FunctionExprContext functionExpr : ctx.functionExpr()){
+            String funcName = Func.funcName(functionExpr);
+            if(global.globalFuncDeclared(funcName)){
+                CompileErrorUtil.funcAlreadyDefined(functionExpr.getStart().getLine(), functionExpr.getStart().getCharPositionInLine(), functionExpr.getStart().getText());
+            }else {
+                try {
+                    Func func = Func.create(global, functionExpr);
+                    global.addGlobalFunc(func);
+                    Decorator decorator = new Decorator(global, funcName);
+                    decorator.processFunc(func, functionExpr);
+                } catch (TypeNotFoundException e) {
+                    CompileErrorUtil.typeNotFound(e.line, e.column, e.type);
+                } catch (TypeNestingException e) {
+                    CompileErrorUtil.typeNestingNotAllowed(e.line, e.column ,e.type);
+                } catch (ValueAlreadyDefinedException e) {
+                    CompileErrorUtil.valueAlreadyDefined(e.line, e.column, e.value);
+                } catch (FunctionArgsNotMatchException e) {
+                    CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.require, e.given);
                 }
             }
-            if(ret){
-                CompileErrorUtil.illegalExprAfterControl(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
-            }else {
-                visit(global, expr);
-            }
         }
+        //分析函数
+        for (HanCompilerParser.FunctionExprContext functionExpr : ctx.functionExpr()){
+            String funcName = Func.funcName(functionExpr);
+            Func func = global.getGlobalFunc(funcName);
+            FuncScope scope = new FuncScope(func);
+            global.addChildScope(scope);
+            Arrays.stream(func.argumentTypes.types).map(each -> Value.create(each.name, each, false)).forEach(scope::addValue);
+            visit(scope, Func.funcInnerExprs(functionExpr), func.returnType, false);
+        }
+        //遍历最外层
+        visit(global, ctx.expr(), global.getGlobalType("int"), false);
         System.out.println(this.global);
         return null;
     }
@@ -91,7 +109,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             try {
                 scope.addValue(Value.create(
                         ctx.ID().getText(),
-                        Type.get(global, ((HanCompilerParser.CustomTypeExprContext) typeCtx).ID().getText(), typeCtx),
+                        Type.get(global, ((HanCompilerParser.CustomTypeExprContext) typeCtx).ID().getText(), typeCtx).trim(),
                         false
                 ));
             } catch (TypeNotFoundException e) {
@@ -192,6 +210,10 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
         } catch (EmptyTempleExpr e) {
             CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
+        } catch (FunctionArgsNotMatchException e) {
+            CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
+        } catch (FunctionNotFoundException e) {
+            CompileErrorUtil.funcNotFound(e.line, e.column, e.function);
         }
         Value value = scope.getValue(valueName);
         if(calc != null && !value.getType().equals(calc.getType())){
@@ -248,6 +270,10 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
         } catch (EmptyTempleExpr e) {
             CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
+        } catch (FunctionArgsNotMatchException e) {
+            CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
+        } catch (FunctionNotFoundException e) {
+            CompileErrorUtil.funcNotFound(e.line, e.column, e.function);
         }
         if(calc != null && !value.getType().equals(calc.getType())){
             scope.removeValue(value);
@@ -260,7 +286,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
 
     @Override
     public Void visitInnerIfElseExpr(HanCompilerParser.InnerIfElseExprContext ctx) {
-        return visit(scope(ctx), ctx.ifelseExpr());
+        return visit(scope(ctx), returnType(ctx), ctx.ifelseExpr());
     }
 
     @Override
@@ -277,21 +303,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                     ifelse = new Elif(Objects.requireNonNull(ifelse), ifbodyCtx.calcExpr());
                 }
                 scope.addChildScope(ifelse);
-                boolean ret = false;
-                for(HanCompilerParser.ExprContext expr : ifbodyCtx.expr()){
-                    if(expr instanceof HanCompilerParser.InnerFlowExprContext){
-                        if(((HanCompilerParser.InnerFlowExprContext) expr).flowExpr().KEY_Return() != null){
-                            ret = true; continue;
-                        }else {
-                            CompileErrorUtil.illegalControlExpr(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
-                        }
-                    }
-                    if(ret){
-                        CompileErrorUtil.illegalExprAfterControl(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
-                    }else {
-                        visit(ifelse, expr);
-                    }
-                }
+                visit(scope, ifbodyCtx.expr(), returnType(ctx), false);
             } catch (IllegalOperatorException e) {
                 CompileErrorUtil.operatorNotFound(e.line, e.column, e.operator, e.types);
             } catch (TypeNotFoundException e) {
@@ -306,34 +318,24 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                 CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
             } catch (EmptyTempleExpr e) {
                 CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
+            } catch (FunctionArgsNotMatchException e) {
+                CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
+            } catch (FunctionNotFoundException e) {
+                CompileErrorUtil.funcNotFound(e.line, e.column, e.function);
             }
         }
         HanCompilerParser.IfbodyEndExprContext ifbodyCtx = ctx.ifbodyEndExpr();
         if(ifbodyCtx != null){
             ifelse = new Else(ifelse);
             scope.addChildScope(ifelse);
-            boolean ret = false;
-            for(HanCompilerParser.ExprContext expr : ifbodyCtx.expr()){
-                if(expr instanceof HanCompilerParser.InnerFlowExprContext){
-                    if(((HanCompilerParser.InnerFlowExprContext) expr).flowExpr().KEY_Return() != null){
-                        ret = true; continue;
-                    }else {
-                        CompileErrorUtil.illegalControlExpr(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
-                    }
-                }
-                if(ret){
-                    CompileErrorUtil.illegalExprAfterControl(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
-                }else {
-                    visit(ifelse, expr);
-                }
-            }
+            visit(scope, ifbodyCtx.expr(), returnType(ctx), false);
         }
         return null;
     }
 
     @Override
     public Void visitInnerWhileExpr(HanCompilerParser.InnerWhileExprContext ctx) {
-        return visit(scope(ctx), ctx.whileExpr());
+        return visit(scope(ctx), returnType(ctx), ctx.whileExpr());
     }
 
     @Override
@@ -342,21 +344,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
         try {
             While wh = new While(scope, ctx.calcExpr());
             scope.addChildScope(wh);
-            boolean ret = false;
-            for(HanCompilerParser.ExprContext expr : ctx.expr()){
-                if(expr instanceof HanCompilerParser.InnerFlowExprContext){
-                    if(((HanCompilerParser.InnerFlowExprContext) expr).flowExpr().KEY_Return() != null){
-                        ret = true; continue;
-                    }else {
-                        CompileErrorUtil.illegalControlExpr(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
-                    }
-                }
-                if(ret){
-                    CompileErrorUtil.illegalExprAfterControl(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
-                }else {
-                    visit(wh, expr);
-                }
-            }
+            visit(scope, ctx.expr(), returnType(ctx), true);
         } catch (IllegalOperatorException e) {
             CompileErrorUtil.operatorNotFound(e.line, e.column, e.operator, e.types);
         } catch (TypeNotFoundException e) {
@@ -371,6 +359,64 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
         } catch (EmptyTempleExpr e) {
             CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
+        } catch (FunctionArgsNotMatchException e) {
+            CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
+        } catch (FunctionNotFoundException e) {
+            CompileErrorUtil.funcNotFound(e.line, e.column, e.function);
+        }
+        return null;
+    }
+
+    public Void visit(Scope scope, List<HanCompilerParser.ExprContext> exprs, Type returnType
+            , boolean isLoop) {
+        boolean ret = false;
+        for (HanCompilerParser.ExprContext expr : exprs) {
+            if(ret){
+                CompileErrorUtil.illegalExprAfterControl(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
+            }else {
+                visit(scope, returnType, expr);
+            }
+            if(expr instanceof HanCompilerParser.InnerFlowExprContext){
+                HanCompilerParser.InnerFlowExprContext IFlowExpr = ((HanCompilerParser.InnerFlowExprContext) expr);
+                HanCompilerParser.FlowExprContext flowExpr = IFlowExpr.flowExpr();
+                if(flowExpr.KEY_Return() != null){
+                    ret = true;
+                    if (returnType.type.equals("<null>")) {
+                        if (flowExpr.calcExpr() != null) {
+                            CompileErrorUtil.funcIllegalReturn(flowExpr.getStart().getLine(), flowExpr.getStart().getCharPositionInLine(), flowExpr.calcExpr().getText());
+                        }
+                    } else {
+                        try {
+                            Calc calc = Calc.create(scope, flowExpr.calcExpr());
+                            if (!returnType.equals(calc.getType())) {
+                                CompileErrorUtil.funcReturnTypeNotMatch(flowExpr.calcExpr().getStart().getLine(), flowExpr.calcExpr().getStart().getCharPositionInLine(), returnType.type, calc.getType().type);
+                            }
+                        } catch (IllegalCastException e) {
+                            CompileErrorUtil.printErrNode(expr);
+                        } catch (TypeNotFoundException e) {
+                            CompileErrorUtil.typeNotFound(e.line, e.column, e.type);
+                        } catch (IllegalOperatorException e) {
+                            CompileErrorUtil.operatorNotFound(e.line, e.column, e.operator, e.types);
+                        } catch (ValueNotFoundException e) {
+                            CompileErrorUtil.symbolNotFound(e.line, e.column, e.value);
+                        } catch (TypeNotMatchException e) {
+                            CompileErrorUtil.typeNotMatch(e.line, e.column, e.require, e.given);
+                        } catch (TypeNestingException e) {
+                            CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+                        } catch (EmptyTempleExpr e) {
+                            CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
+                        } catch (FunctionArgsNotMatchException e) {
+                            CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
+                        } catch (FunctionNotFoundException e) {
+                            CompileErrorUtil.funcNotFound(e.line, e.column, e.function);
+                        }
+                    }
+                }else {
+                    if(!isLoop) {
+                        CompileErrorUtil.illegalControlExpr(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), expr.getText());
+                    }
+                }
+            }
         }
         return null;
     }
@@ -380,8 +426,18 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
         return super.visit(tree);
     }
 
+    public Void visit(Scope scope, Type returnType, ParseTree tree) {
+        ast2scope.put(tree, scope);
+        ast2returnType.put(tree, returnType);
+        return super.visit(tree);
+    }
+
     public Scope scope(ParseTree tree) {
         return ast2scope.get(tree);
+    }
+
+    public Type returnType(ParseTree tree) {
+        return ast2returnType.get(tree);
     }
 
 }

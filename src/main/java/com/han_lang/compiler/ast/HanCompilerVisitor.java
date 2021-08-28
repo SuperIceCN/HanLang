@@ -230,6 +230,34 @@ public interface HanCompilerVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEmptyTemple(HanCompilerParser.EmptyTempleContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code DecoratorCast}
+	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDecoratorCast(HanCompilerParser.DecoratorCastContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DecoratorOp2}
+	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDecoratorOp2(HanCompilerParser.DecoratorOp2Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DecoratorOp1}
+	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DecoratorOpEnd}
+	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code LExpr}
 	 * labeled alternative in {@link HanCompilerParser#calcExpr}.
 	 * @param ctx the parse tree
@@ -306,34 +334,6 @@ public interface HanCompilerVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitECExpr(HanCompilerParser.ECExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code DecoratorCast}
-	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDecoratorCast(HanCompilerParser.DecoratorCastContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code DecoratorOp2}
-	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDecoratorOp2(HanCompilerParser.DecoratorOp2Context ctx);
-	/**
-	 * Visit a parse tree produced by the {@code DecoratorOp1}
-	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDecoratorOp1(HanCompilerParser.DecoratorOp1Context ctx);
-	/**
-	 * Visit a parse tree produced by the {@code DecoratorOpEnd}
-	 * labeled alternative in {@link HanCompilerParser#decoratorExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDecoratorOpEnd(HanCompilerParser.DecoratorOpEndContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HanCompilerParser#argPartExpr}.
 	 * @param ctx the parse tree

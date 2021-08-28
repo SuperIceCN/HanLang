@@ -96,4 +96,20 @@ public class CompileErrorUtil {
         newErr();
         System.err.printf("在 %d行%d列 处不允许空元组。%n", line, column);
     }
+    public static void funcIllegalReturn(int line, int column, String ret){
+        newErr();
+        System.err.printf("在 %d行%d列 处无返回值函数中不允许返回 %s。%n", line, column, ret);
+    }
+    public static void funcReturnTypeNotMatch(int line, int column, String target, String source){
+        newErr();
+        System.err.printf("在 %d行%d列 处的 %s 类型无法与函数返回值 %s 类型匹配。%n", line, column, source, target);
+    }
+    public static void funcNotFound(int line, int column, String name){
+        newErr();
+        System.err.printf("在 %d行%d列 处找不到函数 %s。%n", line, column, name);
+    }
+    public static void funcArgsNotMatch(int line, int column, String target, String source){
+        newErr();
+        System.err.printf("在 %d行%d列 处的函数传入参数不应为 %s 类型，应当为 %s 类型。%n", line, column, source, target);
+    }
 }
