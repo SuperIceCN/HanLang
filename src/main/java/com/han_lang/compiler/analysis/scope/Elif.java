@@ -11,7 +11,7 @@ public class Elif extends IfElse {
     @Expose
     public IfElse chainTo;
 
-    public Elif(IfElse chainTo, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException, EmptyTempleExpr, FunctionNotFoundException, FunctionArgsNotMatchException {
+    public Elif(IfElse chainTo, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, TypeNotFoundException, IllegalCastException, TypeNotMatchException, ValueNotFoundException, TypeNestingException, EmptyTempleException, FunctionNotFoundException, FunctionArgsNotMatchException {
         this.setParentScope(chainTo.getParentScope());
         this.setChainTo(chainTo);
         Calc tmp = Calc.create(this, condition);

@@ -208,7 +208,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.typeNotMatch(e.line, e.column, e.require, e.given);
         } catch (TypeNestingException e) {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
-        } catch (EmptyTempleExpr e) {
+        } catch (EmptyTempleException e) {
             CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
         } catch (FunctionArgsNotMatchException e) {
             CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
@@ -268,7 +268,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.typeNotMatch(e.line, e.column, e.require, e.given);
         } catch (TypeNestingException e) {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
-        } catch (EmptyTempleExpr e) {
+        } catch (EmptyTempleException e) {
             CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
         } catch (FunctionArgsNotMatchException e) {
             CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
@@ -316,7 +316,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                 CompileErrorUtil.symbolNotFound(e.line, e.column, e.value);
             } catch (TypeNestingException e) {
                 CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
-            } catch (EmptyTempleExpr e) {
+            } catch (EmptyTempleException e) {
                 CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
             } catch (FunctionArgsNotMatchException e) {
                 CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
@@ -357,7 +357,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             CompileErrorUtil.symbolNotFound(e.line, e.column, e.value);
         } catch (TypeNestingException e) {
             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
-        } catch (EmptyTempleExpr e) {
+        } catch (EmptyTempleException e) {
             CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
         } catch (FunctionArgsNotMatchException e) {
             CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
@@ -403,7 +403,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                             CompileErrorUtil.typeNotMatch(e.line, e.column, e.require, e.given);
                         } catch (TypeNestingException e) {
                             CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
-                        } catch (EmptyTempleExpr e) {
+                        } catch (EmptyTempleException e) {
                             CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
                         } catch (FunctionArgsNotMatchException e) {
                             CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
