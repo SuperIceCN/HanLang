@@ -156,6 +156,12 @@ public interface HanCompilerVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTypeEntryEnd(HanCompilerParser.TypeEntryEndContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link HanCompilerParser#typeFuncArgExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeFuncArgExpr(HanCompilerParser.TypeFuncArgExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code BasicTypeExpr}
 	 * labeled alternative in {@link HanCompilerParser#typeExpr}.
 	 * @param ctx the parse tree
@@ -190,6 +196,13 @@ public interface HanCompilerVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStructExpr(HanCompilerParser.StructExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FuncTypeExpr}
+	 * labeled alternative in {@link HanCompilerParser#typeExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFuncTypeExpr(HanCompilerParser.FuncTypeExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link HanCompilerParser#setExpr}.
 	 * @param ctx the parse tree
@@ -271,6 +284,13 @@ public interface HanCompilerVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitC2Expr(HanCompilerParser.C2ExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FPtrExpr}
+	 * labeled alternative in {@link HanCompilerParser#calcExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFPtrExpr(HanCompilerParser.FPtrExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code GDExpr}
 	 * labeled alternative in {@link HanCompilerParser#calcExpr}.

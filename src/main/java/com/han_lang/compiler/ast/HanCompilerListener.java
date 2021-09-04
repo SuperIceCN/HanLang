@@ -252,6 +252,16 @@ public interface HanCompilerListener extends ParseTreeListener {
 	 */
 	void exitTypeEntryEnd(HanCompilerParser.TypeEntryEndContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link HanCompilerParser#typeFuncArgExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeFuncArgExpr(HanCompilerParser.TypeFuncArgExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HanCompilerParser#typeFuncArgExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeFuncArgExpr(HanCompilerParser.TypeFuncArgExprContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code BasicTypeExpr}
 	 * labeled alternative in {@link HanCompilerParser#typeExpr}.
 	 * @param ctx the parse tree
@@ -311,6 +321,18 @@ public interface HanCompilerListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStructExpr(HanCompilerParser.StructExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FuncTypeExpr}
+	 * labeled alternative in {@link HanCompilerParser#typeExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterFuncTypeExpr(HanCompilerParser.FuncTypeExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FuncTypeExpr}
+	 * labeled alternative in {@link HanCompilerParser#typeExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitFuncTypeExpr(HanCompilerParser.FuncTypeExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link HanCompilerParser#setExpr}.
 	 * @param ctx the parse tree
@@ -449,6 +471,18 @@ public interface HanCompilerListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitC2Expr(HanCompilerParser.C2ExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FPtrExpr}
+	 * labeled alternative in {@link HanCompilerParser#calcExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterFPtrExpr(HanCompilerParser.FPtrExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FPtrExpr}
+	 * labeled alternative in {@link HanCompilerParser#calcExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitFPtrExpr(HanCompilerParser.FPtrExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code GDExpr}
 	 * labeled alternative in {@link HanCompilerParser#calcExpr}.

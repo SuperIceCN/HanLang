@@ -32,6 +32,19 @@ public class Func {
         return argumentTypes.merge(new TypeSet(returnType));
     }
 
+    public String signatureString(){
+        StringBuilder sig = new StringBuilder();
+        sig.append("<").append(returnType.type.substring(1, returnType.type.length() - 1)).append(">").append("(");
+        for(int i=0;i<argumentTypes.size();i++){
+            if(i!=0){
+                sig.append(",");
+            }
+            sig.append(argumentTypes.get(i).type);
+        }
+        sig.append(")");
+        return sig.toString();
+    }
+
     public boolean isUsed() {
         return used;
     }

@@ -14,6 +14,7 @@ import java.util.List;
  * 如果一个类型是一个基本量，那么它没有subtype
  * 如果一个类型是一个数组，那么它拥有一个名为{@code <数组类型*长度>}的subtype
  * 如果一个类型是一个结构体，那么它拥有对应子结构的subtype
+ * 如果一个类型是一个函数，那么它拥有返回值和参数
  */
 public class Type {
     public Global global;
@@ -40,7 +41,7 @@ public class Type {
      * @return 获取的类型
      */
     public static Type get(Global global, String name, HanCompilerParser.TypeExprContext typeCtx) throws TypeNotFoundException, TypeNestingException {
-        if (global.hasGlobalType(name)){
+        if (global.hasGlobalType(name)) {
             return global.getGlobalType(name);
         }
         if (typeCtx instanceof HanCompilerParser.BasicTypeExprContext) {
@@ -62,34 +63,46 @@ public class Type {
             }
         } else if (typeCtx instanceof HanCompilerParser.CustomArrayExprContext) {
             HanCompilerParser.CustomArrayExprContext ctx = ((HanCompilerParser.CustomArrayExprContext) typeCtx);
-            if(global.globalTypeDeclared(ctx.ID().getText())){
+            if (global.globalTypeDeclared(ctx.ID().getText())) {
                 Type tmp = global.getDeclaredGlobalType(ctx.ID().getText()).copy().toArrayType(MathUtil.autoParse(ctx.INT().getText()));
                 return tmp.copy().setName(name);
-            }else {
+            } else {
                 throw new TypeNotFoundException(ctx.ID().getSymbol().getLine(), ctx.ID().getSymbol().getCharPositionInLine(), "<" + ctx.ID().getText() + ">");
             }
         } else if (typeCtx instanceof HanCompilerParser.StructExprContext) {
             HanCompilerParser.StructExprContext ctx = ((HanCompilerParser.StructExprContext) typeCtx);
             Type tmp = new Type(global, name, typeId(typeCtx));
             for (HanCompilerParser.TypeEntryPartContext each : ctx.typeEntryPart()) {
-                if(each.typeExpr() instanceof HanCompilerParser.StructExprContext){
+                if (each.typeExpr() instanceof HanCompilerParser.StructExprContext) {
                     throw new TypeNestingException(each.typeExpr().getStart().getLine(), each.typeExpr().getStart().getCharPositionInLine(), each.typeExpr().getText());
-                }else {
+                } else {
                     tmp.subtype(Type.get(global, each.ID().getText(), each.typeExpr()));
                 }
             }
-            if(ctx.typeEntryEnd().typeExpr() instanceof HanCompilerParser.StructExprContext){
+            if (ctx.typeEntryEnd().typeExpr() instanceof HanCompilerParser.StructExprContext) {
                 throw new TypeNestingException(ctx.typeEntryEnd().typeExpr().getStart().getLine(), ctx.typeEntryEnd().typeExpr().getStart().getCharPositionInLine(), ctx.typeEntryEnd().typeExpr().getText());
-            }else {
+            } else {
                 tmp.subtype(Type.get(global, ctx.typeEntryEnd().ID().getText(), ctx.typeEntryEnd().typeExpr()));
             }
             return tmp;
+        } else if (typeCtx instanceof HanCompilerParser.FuncTypeExprContext) {
+            HanCompilerParser.FuncTypeExprContext ctx = (HanCompilerParser.FuncTypeExprContext) typeCtx;
+            if(ctx.typeExpr() != null){
+                get(global, name, ctx.typeExpr());
+            }
+            if(ctx.typeFuncArgExpr() != null){
+                List<HanCompilerParser.TypeExprContext> args = ctx.typeFuncArgExpr().typeExpr();
+                for(HanCompilerParser.TypeExprContext eachArg : args){
+                    get(global, name, eachArg);
+                }
+            }
+            return new Type(global, name, typeId(ctx));
         } else {
             return null;
         }
     }
 
-    public static Type getAbstract(Global global,String name, String type) {
+    public static Type getAbstract(Global global, String name, String type) {
         return new Type(global, name, type);
     }
 
@@ -97,14 +110,36 @@ public class Type {
         return new Type(this.global, this.name, "<" + this.type.substring(1, this.type.length() - 1) + "*" + length + ">");
     }
 
-    public Type toSingleType(){
+    public Type toSingleType() {
         return new Type(this.global, this.name, "<" + this.type.split("\\*")[0].substring(1) + ">");
     }
 
-    public boolean isInteger(){
-        if(this.subtypes.size() == 0){
-            switch (this.type){
-                case "<byte>": case "<int>": case "<sint>": case "<lint>": case "<llint>":
+    public Type toReturnType() {
+        return new Type(this.global, this.name, this.type.split("\\(")[0].replaceFirst("<", ""));
+    }
+
+    public TypeSet toArgTypes() {
+        String a = this.type.split("\\(")[1];
+        a = a.substring(0, a.length() - 2);
+        String[] args = a.split(",");
+        Type[] types = new Type[args.length];
+        for(int i=0;i<args.length;i++){
+            if(args[i].equals("")){
+                return new TypeSet();
+            }
+            types[i] = new Type(this.global, "arg" + i, "<"+args[i].substring(1, args[i].length() - 1)+">");
+        }
+        return new TypeSet(types);
+    }
+
+    public boolean isInteger() {
+        if (this.subtypes.size() == 0) {
+            switch (this.type) {
+                case "<byte>":
+                case "<int>":
+                case "<sint>":
+                case "<lint>":
+                case "<llint>":
                     return true;
             }
         }
@@ -119,9 +154,13 @@ public class Type {
         }
     }
 
+    public boolean isFunc() {
+        return this.type.contains("(") && this.type.contains(")");
+    }
+
     public boolean isStruct() {
         if (this.subtypes.size() >= 1) {
-            return !this.isArray();
+            return !(this.isArray() || this.isFunc());
         } else {
             return false;
         }
@@ -140,25 +179,33 @@ public class Type {
 
     public Type matchSubtype(String name) {
         for (Type type : subtypes) {
-            if(type.name.equals(name)){
+            if (type.name.equals(name)) {
                 return type;
             }
         }
         return null;
     }
 
-    public Type expand(){
-        Type type = global.getGlobalType(this.type.substring(1, this.type.length() -1));
+    public Type expand() {
+        Type type = global.getGlobalType(this.type.substring(1, this.type.length() - 1));
         return type == null ? this : type;
     }
 
-    public Type trim(){
+    public Type expandIfAlias() {
+        return isAlias() ? expand() : this;
+    }
+
+    public boolean isAlias() {
+        return this.subtypes.size() == 0;
+    }
+
+    public Type trim() {
         return global.hasGlobalType(this.name) ? Type.getAbstract(this.global, this.name, "<" + this.name + ">") : this;
     }
 
     @Override
     public String toString() {
-        return name;
+        return name+type;
     }
 
     @Override
@@ -195,7 +242,7 @@ public class Type {
         return this;
     }
 
-    public static String typeString(HanCompilerParser.TypeExprContext typeCtx){
+    public static String typeString(HanCompilerParser.TypeExprContext typeCtx) {
         String tmp = typeId(typeCtx);
         return tmp.substring(1, tmp.length() - 1);
     }
@@ -223,13 +270,29 @@ public class Type {
             }
             typeString.append(typeId(ctx.typeEntryEnd().typeExpr()));
             return "<" + typeString.toString() + ">";
+        } else if (typeCtx instanceof HanCompilerParser.FuncTypeExprContext) {
+            HanCompilerParser.FuncTypeExprContext ctx = (HanCompilerParser.FuncTypeExprContext) typeCtx;
+            StringBuilder typeString = new StringBuilder();
+            typeString.append(typeId(ctx.typeExpr()))
+                    .append("(");
+            if(ctx.typeFuncArgExpr() != null){
+                List<HanCompilerParser.TypeExprContext> args = ctx.typeFuncArgExpr().typeExpr();
+                for (int i = 0; i < args.size(); i++) {
+                    if (i != 0) {
+                        typeString.append(',');
+                    }
+                    typeString.append(typeId(args.get(i)));
+                }
+            }
+            typeString.append(")");
+            return "<" + typeString.toString() + ">";
         }
         return "<null>";
     }
 
     public static String typeBasic2String(HanCompilerParser.Type_basicContext basic) {
         String tmp = typeBasic2Type(basic);
-        return tmp.substring(1, tmp.length() -1);
+        return tmp.substring(1, tmp.length() - 1);
     }
 
     public static String typeBasic2Type(HanCompilerParser.Type_basicContext basic) {

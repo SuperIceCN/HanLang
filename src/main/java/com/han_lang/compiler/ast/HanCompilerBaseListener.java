@@ -292,6 +292,18 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTypeFuncArgExpr(HanCompilerParser.TypeFuncArgExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeFuncArgExpr(HanCompilerParser.TypeFuncArgExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBasicTypeExpr(HanCompilerParser.BasicTypeExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -347,6 +359,18 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStructExpr(HanCompilerParser.StructExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFuncTypeExpr(HanCompilerParser.FuncTypeExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFuncTypeExpr(HanCompilerParser.FuncTypeExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -491,6 +515,18 @@ public class HanCompilerBaseListener implements HanCompilerListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitC2Expr(HanCompilerParser.C2ExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFPtrExpr(HanCompilerParser.FPtrExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFPtrExpr(HanCompilerParser.FPtrExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

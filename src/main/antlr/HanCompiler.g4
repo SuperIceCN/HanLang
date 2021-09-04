@@ -33,12 +33,15 @@ constAndSetExpr: KEY_Const ID typeExpr OP_Set calcExpr;
 newtypeExpr: KEY_Type ID typeExpr;
 typeEntryPart: ID typeExpr OP_Split;
 typeEntryEnd: ID typeExpr OP_Split?;
+typeFuncArgExpr: (typeExpr OP_Split)* (typeExpr OP_Split?);
 typeExpr: OP_BraketType_Left type_basic OP_BraketType_Right             #BasicTypeExpr
     | OP_BraketType_Left type_basic OP_Mutiply INT OP_BraketType_Right  #BasicArrayExpr
     | OP_BraketType_Left ID OP_BraketType_Right                         #CustomTypeExpr
     | OP_BraketType_Left ID OP_Mutiply INT OP_BraketType_Right          #CustomArrayExpr
     | OP_BraketType_Left typeEntryPart*
-      typeEntryEnd OP_BraketType_Right                                  #StructExpr
+        typeEntryEnd OP_BraketType_Right                                #StructExpr
+    | OP_BraketType_Left typeExpr? OP_Braket_Left
+        typeFuncArgExpr? OP_Braket_Right OP_BraketType_Right            #FuncTypeExpr
     ;
 setExpr: (ID | varExpr) OP_Set calcExpr;
 templePart: calcExpr OP_Split;
@@ -75,6 +78,7 @@ calcExpr: <assoc=right> operator1 calcExpr                              #C1Expr 
     | calcExpr operator2_p1 calcExpr                                    #C2Expr  //operator2
     | (literal | ID)                                                    #LExpr   //literal, var or const
     | templeExpr                                                        #TExpr   //temple
+    | OP_At ID                                                          #FPtrExpr//func ptr
     | OP_Braket_Left (literal | ID) OP_Braket_Right                     #LBExpr  //above with braket
     | calcExpr operatorEnd                                              #ECExpr  //call in end
     ;
@@ -148,6 +152,7 @@ OP_Split: '，' | ',';
 OP_Set: '=';
 OP_End: '。'+ {inType = false;} | ';'+ {inType = false;};
 OP_EndCall: '#';
+OP_At: '@';
 
 OP_Braket_Left: '（' | '(';
 OP_Braket_Right: '）' | ')';

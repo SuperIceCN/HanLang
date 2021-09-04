@@ -40,17 +40,9 @@ public class VerifyTest {
     }
 
     @Test
-    public void complexStructType(){
+    public void funcType(){
         com.han_lang.compiler.Compiler.verify(
-                CharStreams.fromString("type Student<" +
-                        "   name<string>, age<sint>, grades<" +
-                        "      math<" +
-                        "          grade<sint>, passed<bool>" +
-                        "      >, programing<" +
-                        "          grade<sing>, passed<bool>" +
-                        "      >" +
-                        "   >" +
-                        ">;")
+                CharStreams.fromString("type A<<int>()>;")
         );
     }
 
@@ -225,6 +217,20 @@ public class VerifyTest {
     public void testOperator(){
         com.han_lang.compiler.Compiler.verify(
                 CharStreams.fromString(TestUtil.getCode("自定义操作符.hl"))
+        );
+    }
+
+    @Test
+    public void testFuncType(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString(TestUtil.getCode("函数类型变量.hl"))
+        );
+    }
+
+    @Test
+    public void testWhile2(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString(TestUtil.getCode("循环.hl"))
         );
     }
 }

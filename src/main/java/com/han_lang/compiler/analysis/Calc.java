@@ -19,6 +19,9 @@ public class Calc {
     protected Calc(Type type, String text) {
         this.resultType = type;
         this.text = text;
+        if(type.isFunc()){
+            this.setFunc(true);
+        }
     }
 
     public Type getType() {
@@ -57,6 +60,8 @@ public class Calc {
             return make(scope, (HanCompilerParser.TExprContext) ctx);
         }else if(ctx instanceof HanCompilerParser.IExprContext){
             return make(scope, (HanCompilerParser.IExprContext) ctx);
+        } else if(ctx instanceof HanCompilerParser.FPtrExprContext){
+            return make(scope, (HanCompilerParser.FPtrExprContext) ctx);
         }
         return new Calc(new Type(scope.getGlobal(), "error", "<null>"), "error");
     }
@@ -79,7 +84,7 @@ public class Calc {
             if (scope.valueAvailable(valueName))
                 return new Calc(scope.getValue(valueName).valueType, text);
             else if(scope.getGlobal().hasGlobalFunc(valueName))
-                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<function>"), text).setFunc(true);
+                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<"+scope.getGlobal().getGlobalFunc(valueName).signatureString()+">"), text);
             else
                 throw new ValueNotFoundException(declareCtx.ID().getSymbol().getLine(), declareCtx.ID().getSymbol().getCharPositionInLine(), valueName);
         }
@@ -104,7 +109,7 @@ public class Calc {
             if (scope.valueAvailable(valueName))
                 return new Calc(scope.getValue(valueName).valueType, text);
             else if(scope.getGlobal().hasGlobalFunc(valueName))
-                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<function>"), text).setFunc(true);
+                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<"+scope.getGlobal().getGlobalFunc(valueName).signatureString()+">"), text);
             else
                 throw new ValueNotFoundException(declareCtx.ID().getSymbol().getLine(), declareCtx.ID().getSymbol().getCharPositionInLine(), valueName);
         }
@@ -286,20 +291,28 @@ public class Calc {
         HanCompilerParser.CalcExprContext funcCalcExpr = calcCtxList.get(0);
         Calc target = create(scope, funcCalcExpr);
         if(target.isFunc()){
-            Func func = scope.getGlobal().getGlobalFunc(target.text).setUsed();
             List<Calc> argsCalc = new ArrayList<>();
             for(int i=1;i<calcCtxList.size();i++){
                 argsCalc.add(Calc.create(scope, calcCtxList.get(i)));
             }
-            TypeSet signatureArgs = func.argumentTypes;
+            TypeSet signatureArgs = target.getType().toArgTypes();
             TypeSet givenArgs = new TypeSet(argsCalc.stream().map(Calc::getType).toArray(Type[]::new));
             if(givenArgs.equals(signatureArgs)){
-                return new Calc(func.returnType, iCtx.getText());
+                return new Calc(target.getType().toReturnType(), iCtx.getText());
             }else {
                 throw new FunctionArgsNotMatchException(iCtx.OP_Braket_Left().getSymbol().getLine(), iCtx.OP_Braket_Left().getSymbol().getCharPositionInLine(), signatureArgs.toString(), givenArgs.toString());
             }
         }else {
             throw new FunctionNotFoundException(funcCalcExpr.getStart().getLine(), funcCalcExpr.getStart().getCharPositionInLine(), funcCalcExpr.getText());
+        }
+    }
+
+    public static Calc make(Scope scope, HanCompilerParser.FPtrExprContext fCtx) throws FunctionNotFoundException {
+        if(scope.getGlobal().globalFuncDeclared(fCtx.ID().getText())){
+            Func func = scope.getGlobal().getGlobalFunc(fCtx.ID().getText());
+            return new Calc(new Type(scope.getGlobal(), func.funcName, "<"+func.signatureString()+">"), fCtx.getText());
+        }else{
+            throw new FunctionNotFoundException(fCtx.ID().getSymbol().getLine(), fCtx.ID().getSymbol().getCharPositionInLine(), fCtx.ID().getText());
         }
     }
 

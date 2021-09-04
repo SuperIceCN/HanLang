@@ -58,18 +58,45 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                 }
             }
         }
+        //遍历最外层
+        visit(global, ctx.expr(), global.getGlobalType("int"), false);
         //分析函数
         for (HanCompilerParser.FunctionExprContext functionExpr : ctx.functionExpr()){
             String funcName = Func.funcName(functionExpr);
             Func func = global.getGlobalFunc(funcName);
             FuncScope scope = new FuncScope(func);
             global.addChildScope(scope);
+            scope.setParentScope(global);
             Arrays.stream(func.argumentTypes.types).map(each -> Value.create(each.name, each, false)).forEach(scope::addValue);
             visit(scope, Func.funcInnerExprs(functionExpr), func.returnType, false);
         }
-        //遍历最外层
-        visit(global, ctx.expr(), global.getGlobalType("int"), false);
         System.out.println(this.global);
+        return null;
+    }
+
+    @Override
+    public Void visitInnerCalcExpr(HanCompilerParser.InnerCalcExprContext ctx) {
+        try {
+            Calc.create(scope(ctx), ctx.calcExpr());
+        } catch (IllegalCastException e) {
+            CompileErrorUtil.illegalCast(e.line, e.column, e.to, e.from);
+        } catch (TypeNotFoundException e) {
+            CompileErrorUtil.typeNotFound(e.line, e.column, e.type);
+        } catch (IllegalOperatorException e) {
+            CompileErrorUtil.operatorNotFound(e.line, e.column, e.operator, e.types);
+        } catch (ValueNotFoundException e) {
+            CompileErrorUtil.symbolNotFound(e.line, e.column, e.value);
+        } catch (TypeNotMatchException e) {
+            CompileErrorUtil.typeNotMatch(e.line, e.column, e.require, e.given);
+        } catch (TypeNestingException e) {
+            CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+        } catch (EmptyTempleException e) {
+            CompileErrorUtil.emptyTempleNotAllowed(e.line, e.column);
+        } catch (FunctionArgsNotMatchException e) {
+            CompileErrorUtil.funcArgsNotMatch(e.line, e.column, e.given, e.require);
+        } catch (FunctionNotFoundException e) {
+            CompileErrorUtil.funcNotFound(e.line, e.column, e.function);
+        }
         return null;
     }
 
@@ -109,7 +136,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             try {
                 scope.addValue(Value.create(
                         ctx.ID().getText(),
-                        Type.get(global, ((HanCompilerParser.CustomTypeExprContext) typeCtx).ID().getText(), typeCtx).trim(),
+                        Objects.requireNonNull(Type.get(global, ((HanCompilerParser.CustomTypeExprContext) typeCtx).ID().getText(), typeCtx)).trim().expandIfAlias(),
                         false
                 ));
             } catch (TypeNotFoundException e) {
@@ -197,7 +224,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
         try {
             calc = Calc.create(scope, ctx.calcExpr());
         } catch (IllegalCastException e) {
-            CompileErrorUtil.printErrNode(ctx);
+            CompileErrorUtil.illegalCast(e.line, e.column, e.to, e.from);
         } catch (TypeNotFoundException e) {
             CompileErrorUtil.typeNotFound(e.line, e.column, e.type);
         } catch (IllegalOperatorException e) {
@@ -392,7 +419,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                                 CompileErrorUtil.funcReturnTypeNotMatch(flowExpr.calcExpr().getStart().getLine(), flowExpr.calcExpr().getStart().getCharPositionInLine(), returnType.type, calc.getType().type);
                             }
                         } catch (IllegalCastException e) {
-                            CompileErrorUtil.printErrNode(expr);
+                            CompileErrorUtil.illegalCast(e.line, e.column, e.to, e.from);
                         } catch (TypeNotFoundException e) {
                             CompileErrorUtil.typeNotFound(e.line, e.column, e.type);
                         } catch (IllegalOperatorException e) {
