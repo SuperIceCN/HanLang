@@ -5,10 +5,7 @@ import com.han_lang.compiler.analysis.Global;
 import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.analysis.Type;
 import com.han_lang.compiler.llvm.LLVMUtil;
-import com.han_lang.compiler.llvm.generaotr.FuncDeclareGen;
-import com.han_lang.compiler.llvm.generaotr.FuncImplGen;
-import com.han_lang.compiler.llvm.generaotr.TypeDeclareGen;
-import com.han_lang.compiler.llvm.generaotr.TypeImplGen;
+import com.han_lang.compiler.llvm.generaotr.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
@@ -28,8 +25,8 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
         this.ast2scope = ast2scope;
     }
 
-    public int newAutoVar(){
-        return varIndex++;
+    public String newAutoVar(){
+        return "%"+(varIndex++);
     }
 
     public String newAutoLabel(){
@@ -67,14 +64,14 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
 
     @Override
     public VisitResult<String> visitVarExpr(HanCompilerParser.VarExprContext ctx) {
-        Scope scope = scope(ctx);
-        return new VisitResult<String>(Status.Ok);
+        String result = new NewVarGen(ctx).generator(this).gen();
+        return new VisitResult<String>(Status.Ok).content(result);
     }
 
     public VisitResult<String> visit(List<HanCompilerParser.ExprContext> exprs){
         StringBuilder tmp = new StringBuilder();
         for(HanCompilerParser.ExprContext expr : exprs){
-            tmp.append(expr).append("\n");
+            tmp.append(visit(expr).content).append("\n");
         }
         return new VisitResult<String>(Status.Ok).content(tmp.toString());
     }

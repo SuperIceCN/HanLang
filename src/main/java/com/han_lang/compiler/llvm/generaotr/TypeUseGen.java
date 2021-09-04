@@ -23,6 +23,10 @@ public class TypeUseGen extends Codegen {
         return asRef(true);
     }
 
+    public TypeUseGen asRefIfNotBasic(){
+        return asRef(!this.type.isBasic());
+    }
+
     @Override
     public String gen() {
         //尝试拓展指定类型（如果类型在此文件中实现的话那么将可以成功扩展）
@@ -52,6 +56,8 @@ public class TypeUseGen extends Codegen {
                 return "fp128";
             case "<string>":
                 return "i8*"; //字符串底层为字节数组
+            case "<null>":
+                return "void";
         }
         if(t.isAlias()){
             return _gen(t.expandIfAlias());

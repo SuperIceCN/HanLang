@@ -151,6 +151,40 @@ public class Type {
         return false;
     }
 
+    public boolean isDecimal() {
+        if (this.subtypes.size() == 0) {
+            switch (this.type) {
+                case "<dec>":
+                case "<sdec>":
+                case "<ldec>":
+                case "<lldec>":
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isBool() {
+        if (this.subtypes.size() == 0) {
+            return this.type.equals("<bool>");
+        }
+        return false;
+    }
+
+    public boolean isString() {
+        if (this.subtypes.size() == 0) {
+            return this.type.equals("<string>");
+        }
+        return false;
+    }
+
+    public boolean isVoid() {
+        if (this.subtypes.size() == 0) {
+            return this.type.equals("<null>");
+        }
+        return false;
+    }
+
     public boolean hasImpl(){
         return global.hasGlobalType(this.name);
     }

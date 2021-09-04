@@ -9,6 +9,11 @@ public abstract class Codegen {
         return codeGenerator;
     }
 
+    public Codegen generator(HanCodegen codeGenerator){
+        this.codeGenerator = codeGenerator;
+        return this;
+    }
+
     public void gen(HanCodegen codeGenerator){
         this.codeGenerator = codeGenerator;
         gen(codeGenerator.genCode);

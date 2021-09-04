@@ -10,4 +10,11 @@ public class CodegenTest {
                 "type A<a<int>, b<sint>>;", "test1.hl"
         ));
     }
+
+    @Test
+    public void codegenTest2(){
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "function a<int>{var b<int>;}", "test2.hl"
+        ));
+    }
 }

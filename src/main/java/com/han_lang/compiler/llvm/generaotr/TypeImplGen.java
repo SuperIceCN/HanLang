@@ -25,10 +25,7 @@ public class TypeImplGen extends Codegen {
                     tmp.append(", ");
                 }
                 Type t = type.subtypes.get(i);
-                if(t.isBasic())
-                    tmp.append(new TypeUseGen(t).gen());
-                else
-                    tmp.append(new TypeUseGen(t).asRef().gen());
+                tmp.append(new TypeUseGen(t).asRefIfNotBasic().gen());
             }
             tmp.append(" }\n");
         }
