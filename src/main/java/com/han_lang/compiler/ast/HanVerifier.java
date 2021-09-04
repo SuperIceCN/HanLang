@@ -13,8 +13,8 @@ import java.util.Objects;
 
 public class HanVerifier extends HanCompilerBaseVisitor<Void> {
     Global global;
-    ParseTreeProperty<Scope> ast2scope = new ParseTreeProperty<>();
-    ParseTreeProperty<Type> ast2returnType = new ParseTreeProperty<>();
+    public ParseTreeProperty<Scope> ast2scope = new ParseTreeProperty<>();
+    public ParseTreeProperty<Type> ast2returnType = new ParseTreeProperty<>();
 
     public HanVerifier(Global global){
         this.global = global;
@@ -103,7 +103,12 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
     @Override
     public Void visitNewtypeExpr(HanCompilerParser.NewtypeExprContext ctx) {
         try {
-            global.addGlobalType(Type.get(global, ctx.ID().getText(), ctx.typeExpr()));
+            Type type = Type.get(global, ctx.ID().getText(), ctx.typeExpr());
+            if(Objects.requireNonNull(type).toSingleType().type.equals("<"+ctx.ID().getText()+">")){
+                CompileErrorUtil.typeNestingNotAllowed(ctx.ID().getSymbol().getLine(), ctx.ID().getSymbol().getCharPositionInLine(), ctx.ID().getText());
+            }else {
+                global.addGlobalType(type);
+            }
         } catch (TypeNotFoundException e) {
             CompileErrorUtil.typeNotFound(ctx.typeExpr().getStart().getLine(),
                     ctx.typeExpr().getStart().getCharPositionInLine(), ctx.typeExpr().getText());

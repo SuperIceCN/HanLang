@@ -114,6 +114,11 @@ public class Type {
         return new Type(this.global, this.name, "<" + this.type.split("\\*")[0].substring(1) + ">");
     }
 
+    public int toArrayLength() {
+        String tmp = this.type.split("\\*")[1];
+        return Integer.parseInt(tmp.substring(0, tmp.length() - 1));
+    }
+
     public Type toReturnType() {
         return new Type(this.global, this.name, this.type.split("\\(")[0].replaceFirst("<", ""));
     }
@@ -144,6 +149,28 @@ public class Type {
             }
         }
         return false;
+    }
+
+    public boolean hasImpl(){
+        return global.hasGlobalType(this.name);
+    }
+
+    public boolean isBasic(){
+        switch (this.type) {
+            case "<byte>":
+            case "<int>":
+            case "<sint>":
+            case "<lint>":
+            case "<llint>":
+            case "<sdec>":
+            case "<dec>":
+            case "<ldec>":
+            case "<lldec>":
+            case "<string>":
+                return true;
+            default:
+                return false;
+        }
     }
 
     public boolean isArray() {

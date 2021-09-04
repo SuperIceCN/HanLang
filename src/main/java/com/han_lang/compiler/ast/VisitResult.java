@@ -1,8 +1,8 @@
 package com.han_lang.compiler.ast;
 
-public class VisitResult {
+public class VisitResult<T> {
     public Status status = Status.Ok;
-    public Object content = null;
+    public T content = null;
     public VisitResult(Status status){
         this.status = status;
     }
@@ -11,13 +11,22 @@ public class VisitResult {
         return status == Status.Ok;
     }
 
+    public T content() {
+        return content;
+    }
+
+    public VisitResult<T> content(T content) {
+        this.content = content;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if(obj == this){
             return true;
         }
         if(obj instanceof VisitResult){
-            VisitResult v = ((VisitResult) obj);
+            VisitResult<?> v = ((VisitResult<?>) obj);
             if(this.status == v.status){
                 if(this.content == null || v.content == null){
                     return this.content == null && v.content == null;
@@ -32,12 +41,12 @@ public class VisitResult {
         }
     }
 
-    private static final VisitResult _Ok = new VisitResult(Status.Ok);
-    public static VisitResult defaultOk(){
+    private static final VisitResult<Void> _Ok = new VisitResult<>(Status.Ok);
+    public static VisitResult<Void> defaultOk(){
         return _Ok;
     }
-    public static VisitResult newErr(){
-        return new VisitResult(Status.Err);
+    public static VisitResult<Void> newErr(){
+        return new VisitResult<>(Status.Err);
     }
 }
 enum Status{

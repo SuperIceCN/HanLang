@@ -1,10 +1,7 @@
 package com.han_lang.compiler;
 
 import com.han_lang.compiler.analysis.Global;
-import com.han_lang.compiler.ast.HanCompilerLexer;
-import com.han_lang.compiler.ast.HanCompilerParser;
-import com.han_lang.compiler.ast.HanCompilerPreVisitor;
-import com.han_lang.compiler.ast.HanVerifier;
+import com.han_lang.compiler.ast.*;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -16,19 +13,21 @@ public class Compiler {
         verify(CharStreams.fromString("var a<int * 114514>;"));
     }
     public static void compile(CharStream charStream){
+        Global global = new Global();
         HanCompilerLexer lexer = new HanCompilerLexer(charStream);
         HanCompilerParser parser = new HanCompilerParser(new CommonTokenStream(lexer));
-        ParseTree ast2 = parser.program();
-        //程序检验
-        HanCompilerPreVisitor preVisitor = new HanCompilerPreVisitor();
-        preVisitor.visit(ast2);
+        ParseTree ast = parser.program();
+        HanVerifier preVisitor = new HanVerifier(global);
+        preVisitor.visit(ast);
+        HanCodegen codegen = new HanCodegen(global, charStream.getSourceName(), preVisitor.ast2scope);
+        codegen.visit(ast);
     }
     public static void verify(CharStream charStream){
         Global global = new Global();
         HanCompilerLexer lexer = new HanCompilerLexer(charStream);
         HanCompilerParser parser = new HanCompilerParser(new CommonTokenStream(lexer));
-        ParseTree ast2 = parser.program();
+        ParseTree ast = parser.program();
         HanVerifier preVisitor = new HanVerifier(global);
-        preVisitor.visit(ast2);
+        preVisitor.visit(ast);
     }
 }

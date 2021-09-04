@@ -19,6 +19,7 @@ public class FuncScope implements Scope {
     public FuncScope(Func func){
         this.func = func;
         this.parent = func.global;
+        this.func.setScope(this);
     }
 
     @Override

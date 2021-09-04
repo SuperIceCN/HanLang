@@ -19,6 +19,8 @@ public class Func {
     public TypeSet argumentTypes;
     @Expose
     public boolean used = false;
+    //@Expose
+    public Scope scope = null;
 
     protected Func(Global global, String funcName, Type returnType, TypeSet argumentTypes){
         this.global = global;
@@ -26,6 +28,10 @@ public class Func {
         this.returnType = returnType;
         this.argumentTypes = argumentTypes;
         this.global.declareGlobalFunc(funcName, this);
+    }
+
+    public boolean hasImpl(){
+        return this.global.hasGlobalFunc(this.funcName);
     }
 
     public TypeSet signatureTypeSet(){
@@ -56,6 +62,15 @@ public class Func {
 
     public Func setUsed() {
         return setUsed(true);
+    }
+
+    public Scope getScope() {
+        return scope;
+    }
+
+    public Func setScope(Scope scope) {
+        this.scope = scope;
+        return this;
     }
 
     public static Func create(Global global, HanCompilerParser.FunctionExprContext funcExpr) throws TypeNotFoundException, TypeNestingException, ValueAlreadyDefinedException {
