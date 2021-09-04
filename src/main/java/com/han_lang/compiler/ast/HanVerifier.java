@@ -147,7 +147,8 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             }
         } else if (typeCtx instanceof HanCompilerParser.BasicArrayExprContext
                 || typeCtx instanceof HanCompilerParser.CustomArrayExprContext
-                || typeCtx instanceof HanCompilerParser.StructExprContext) {
+                || typeCtx instanceof HanCompilerParser.StructExprContext
+                || typeCtx instanceof HanCompilerParser.FuncTypeExprContext) {
             try {
                 String typeName = Type.typeString(typeCtx);
                 global.addGlobalType(Type.get(global, typeName, typeCtx));
@@ -203,7 +204,8 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             }
         } else if (typeCtx instanceof HanCompilerParser.BasicArrayExprContext
                 || typeCtx instanceof HanCompilerParser.CustomArrayExprContext
-                || typeCtx instanceof HanCompilerParser.StructExprContext) {
+                || typeCtx instanceof HanCompilerParser.StructExprContext
+                || typeCtx instanceof HanCompilerParser.FuncTypeExprContext) {
             try {
                 String typeName = Type.typeString(typeCtx);
                 global.addGlobalType(Type.get(global, typeName, typeCtx));
