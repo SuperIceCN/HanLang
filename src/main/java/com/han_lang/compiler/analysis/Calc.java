@@ -83,8 +83,8 @@ public class Calc {
             String valueName = declareCtx.ID().getText();
             if (scope.valueAvailable(valueName))
                 return new Calc(scope.getValue(valueName).valueType, text);
-            else if(scope.getGlobal().hasGlobalFunc(valueName))
-                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<"+scope.getGlobal().getGlobalFunc(valueName).signatureString()+">"), text);
+            else if(scope.getGlobal().globalFuncDeclared(valueName))
+                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<"+scope.getGlobal().getDeclaredGlobalFunc(valueName).signatureString()+">"), text);
             else
                 throw new ValueNotFoundException(declareCtx.ID().getSymbol().getLine(), declareCtx.ID().getSymbol().getCharPositionInLine(), valueName);
         }
@@ -108,8 +108,8 @@ public class Calc {
             String valueName = declareCtx.ID().getText();
             if (scope.valueAvailable(valueName))
                 return new Calc(scope.getValue(valueName).valueType, text);
-            else if(scope.getGlobal().hasGlobalFunc(valueName))
-                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<"+scope.getGlobal().getGlobalFunc(valueName).signatureString()+">"), text);
+            else if(scope.getGlobal().globalFuncDeclared(valueName))
+                return new Calc(Type.getAbstract(scope.getGlobal(), valueName, "<"+scope.getGlobal().getDeclaredGlobalFunc(valueName).signatureString()+">"), text);
             else
                 throw new ValueNotFoundException(declareCtx.ID().getSymbol().getLine(), declareCtx.ID().getSymbol().getCharPositionInLine(), valueName);
         }
