@@ -233,4 +233,11 @@ public class VerifyTest {
                 CharStreams.fromString(TestUtil.getCode("循环.hl"))
         );
     }
+
+    @Test
+    public void testConstSet(){
+        com.han_lang.compiler.Compiler.verify(
+                CharStreams.fromString("const a<int> = 2; a=3;")
+        );
+    }
 }

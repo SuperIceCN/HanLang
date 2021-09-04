@@ -287,6 +287,10 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
         }else {
             return null;
         }
+        if(value.constant){
+            CompileErrorUtil.constCannotSet(ctx.ID().getSymbol().getLine(), ctx.ID().getSymbol().getCharPositionInLine(), ctx.ID().getText());
+            return null;
+        }
         Calc calc = null;
         try {
             calc = Calc.create(scope, ctx.calcExpr());

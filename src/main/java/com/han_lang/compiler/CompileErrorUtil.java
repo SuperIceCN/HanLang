@@ -112,4 +112,8 @@ public class CompileErrorUtil {
         newErr();
         System.err.printf("在 %d行%d列 处的函数传入参数不应为 %s 类型，应当为 %s 类型。%n", line, column, source, target);
     }
+    public static void constCannotSet(int line, int column, String name){
+        newErr();
+        System.err.printf("在 %d行%d列 处的常量 %s 不允许修改。%n", line, column, name);
+    }
 }
