@@ -3,7 +3,7 @@ package com.han_lang.compiler.llvm.generaotr;
 import com.han_lang.compiler.analysis.Func;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
-import com.han_lang.compiler.llvm.LLVMUtil;
+import com.han_lang.util.LLVMUtil;
 
 public class FuncImplGen extends Codegen {
     Func func;

@@ -4,7 +4,6 @@ import com.han_lang.compiler.analysis.Func;
 import com.han_lang.compiler.analysis.Global;
 import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.analysis.Type;
-import com.han_lang.compiler.llvm.LLVMUtil;
 import com.han_lang.compiler.llvm.generaotr.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -66,6 +65,17 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
     public VisitResult<String> visitVarExpr(HanCompilerParser.VarExprContext ctx) {
         String result = new NewVarGen(ctx).generator(this).gen();
         return new VisitResult<String>(Status.Ok).content(result);
+    }
+
+    @Override
+    public PairResult<String, String> visitLExpr(HanCompilerParser.LExprContext ctx) {
+
+        return new PairResult<String, String>(Status.Ok);
+    }
+
+    @Override
+    public VisitResult<?> visitLBExpr(HanCompilerParser.LBExprContext ctx) {
+        return super.visitLBExpr(ctx);
     }
 
     public VisitResult<String> visit(List<HanCompilerParser.ExprContext> exprs){

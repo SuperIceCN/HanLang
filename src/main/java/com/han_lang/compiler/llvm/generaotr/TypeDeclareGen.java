@@ -3,7 +3,7 @@ package com.han_lang.compiler.llvm.generaotr;
 import com.han_lang.compiler.analysis.Type;
 import com.han_lang.compiler.llvm.Codegen;
 
-import static com.han_lang.compiler.llvm.LLVMUtil.localVar;
+import static com.han_lang.util.LLVMUtil.localVar;
 
 public class TypeDeclareGen extends Codegen {
     Type type;

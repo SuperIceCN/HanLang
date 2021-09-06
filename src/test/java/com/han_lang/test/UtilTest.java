@@ -1,6 +1,6 @@
 package com.han_lang.test;
 
-import com.han_lang.compiler.llvm.LLVMUtil;
+import com.han_lang.util.LLVMUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
