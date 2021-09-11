@@ -106,6 +106,10 @@ public class Type {
         return new Type(global, name, type);
     }
 
+    public String nameWithBracket(){
+        return "<" + this.name + ">";
+    }
+
     public Type toArrayType(int length) {
         return new Type(this.global, this.name, "<" + this.type.substring(1, this.type.length() - 1) + "*" + length + ">");
     }
@@ -201,6 +205,7 @@ public class Type {
             case "<ldec>":
             case "<lldec>":
             case "<string>":
+            case "<null>":
                 return true;
             default:
                 return false;
@@ -257,7 +262,7 @@ public class Type {
     }
 
     public boolean isAlias() {
-        return this.subtypes.size() == 0;
+        return this.subtypes.size() == 0 && !this.isArray() && !this.isFunc();
     }
 
     public Type trim() {

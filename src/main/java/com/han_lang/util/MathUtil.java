@@ -12,4 +12,16 @@ public class MathUtil {
             return Integer.parseInt(number);
         }
     }
+
+    public static long autoParseLong(String number){
+        if(number.startsWith("0x") || number.startsWith("0X")){
+            return Long.parseLong(number.substring(2), 16);
+        }else if(number.startsWith("0b") || number.startsWith("0B")){
+            return Long.parseLong(number.substring(2), 16);
+        }else if(number.startsWith("0") && number.length() > 1){
+            return Long.parseLong(number.substring(1), 8);
+        }else {
+            return Long.parseLong(number);
+        }
+    }
 }

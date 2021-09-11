@@ -5,6 +5,7 @@ import com.han_lang.compiler.analysis.Calc;
 import com.han_lang.compiler.analysis.Global;
 import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.analysis.Value;
+import com.han_lang.compiler.ast.HanCompilerParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +18,8 @@ public abstract class IfElse implements Scope {
     public List<Scope> childrenScope = new ArrayList<>();
     @Expose
     public Map<String, Value> values = new HashMap<>();
+    @Expose
+    public Map<HanCompilerParser.CalcExprContext, Calc> calcRecordMap = new HashMap<>();
 
     @Override
     public boolean valueAvailable(String valueName) {
@@ -81,5 +84,15 @@ public abstract class IfElse implements Scope {
     @Override
     public Global getGlobal() {
         return parent.getGlobal();
+    }
+
+    @Override
+    public void recordCalcExpr(HanCompilerParser.CalcExprContext ctx, Calc calc) {
+        calcRecordMap.put(ctx, calc);
+    }
+
+    @Override
+    public Calc getCalcExprRecord(HanCompilerParser.CalcExprContext ctx) {
+        return calcRecordMap.get(ctx);
     }
 }

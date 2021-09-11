@@ -2,26 +2,33 @@ package com.han_lang.compiler.llvm;
 
 import com.han_lang.compiler.ast.HanCodegen;
 
-public abstract class Codegen {
+public abstract class Codegen<R> {
     protected HanCodegen codeGenerator;
+    protected R result = null;
 
     public HanCodegen getCodeGenerator() {
         return codeGenerator;
     }
 
-    public Codegen generator(HanCodegen codeGenerator){
+    public Codegen<R> generator(HanCodegen codeGenerator){
         this.codeGenerator = codeGenerator;
         return this;
     }
 
-    public void gen(HanCodegen codeGenerator){
+    public Codegen<R> gen(HanCodegen codeGenerator){
         this.codeGenerator = codeGenerator;
-        gen(codeGenerator.genCode);
+        gen();
+        return this;
     }
 
-    public void gen(StringBuilder output){
-        output.append(gen());
+    public abstract void gen();
+
+    public R result(){
+        return result;
     }
 
-    public abstract String gen();
+    public Codegen<R> result(R result){
+        this.result = result;
+        return this;
+    }
 }

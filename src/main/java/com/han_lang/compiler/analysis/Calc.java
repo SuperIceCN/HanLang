@@ -38,6 +38,12 @@ public class Calc {
     }
 
     public static Calc create(Scope scope, HanCompilerParser.CalcExprContext ctx) throws IllegalCastException, TypeNotFoundException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleException, FunctionArgsNotMatchException, FunctionNotFoundException {
+        Calc calc = _create(scope, ctx);
+        scope.recordCalcExpr(ctx, calc);
+        return calc;
+    }
+
+    private static Calc _create(Scope scope, HanCompilerParser.CalcExprContext ctx) throws IllegalCastException, TypeNotFoundException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleException, FunctionArgsNotMatchException, FunctionNotFoundException {
         if (ctx instanceof HanCompilerParser.LExprContext) {
             return make(scope, (HanCompilerParser.LExprContext) ctx);
         } else if (ctx instanceof HanCompilerParser.CastExprContext) {
@@ -63,7 +69,8 @@ public class Calc {
         } else if(ctx instanceof HanCompilerParser.FPtrExprContext){
             return make(scope, (HanCompilerParser.FPtrExprContext) ctx);
         }
-        return new Calc(new Type(scope.getGlobal(), "error", "<null>"), "error");
+        Calc calc = new Calc(new Type(scope.getGlobal(), "error", "<null>"), "error");
+        return calc;
     }
 
     private static Calc make(Scope scope, HanCompilerParser.LExprContext declareCtx) throws ValueNotFoundException {

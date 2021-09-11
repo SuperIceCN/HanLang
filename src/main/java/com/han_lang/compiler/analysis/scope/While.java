@@ -21,6 +21,8 @@ public class While implements Scope {
     public Map<String, Value> values = new HashMap<>();
     @Expose
     public Calc condition;
+    @Expose
+    public Map<HanCompilerParser.CalcExprContext, Calc> calcRecordMap = new HashMap<>();
 
     public While(Scope parent, HanCompilerParser.CalcExprContext condition) throws IllegalOperatorException, IllegalCastException, TypeNotFoundException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleException, FunctionNotFoundException, FunctionArgsNotMatchException {
         this.setParentScope(parent);
@@ -103,5 +105,15 @@ public class While implements Scope {
     @Override
     public Global getGlobal() {
         return parent.getGlobal();
+    }
+
+    @Override
+    public void recordCalcExpr(HanCompilerParser.CalcExprContext ctx, Calc calc) {
+        calcRecordMap.put(ctx, calc);
+    }
+
+    @Override
+    public Calc getCalcExprRecord(HanCompilerParser.CalcExprContext ctx) {
+        return calcRecordMap.get(ctx);
     }
 }

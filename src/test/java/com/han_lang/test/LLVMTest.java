@@ -29,10 +29,12 @@ public class LLVMTest {
         LLVMModuleRef module = LLVMModuleCreateWithNameInContext("sum", context);
         LLVMBuilderRef builder = LLVMCreateBuilderInContext(context);
         LLVMTypeRef i32Type = LLVMInt32TypeInContext(context);
-        PointerPointer<Pointer> sumArgumentTypes = new PointerPointer<>(2)
+        LLVMTypeRef structType = LLVMStructCreateNamed(context, "hi");
+        PointerPointer<Pointer> sumArgumentTypes = new PointerPointer<>(3)
                 .put(0, i32Type)
-                .put(1, i32Type);
-        LLVMTypeRef sumType = LLVMFunctionType(i32Type, sumArgumentTypes, /* argumentCount */ 2, /* isVariadic */ 0);
+                .put(1, i32Type)
+                .put(2, structType);
+        LLVMTypeRef sumType = LLVMFunctionType(i32Type, sumArgumentTypes, /* argumentCount */ 3, /* isVariadic */ 0);
 
         LLVMValueRef sum = LLVMAddFunction(module, "sum", sumType);
         LLVMSetFunctionCallConv(sum, LLVMCCallConv);
@@ -45,9 +47,10 @@ public class LLVMTest {
         LLVMValueRef result = LLVMBuildAdd(builder, lhs, rhs, "result = lhs + rhs");
         LLVMBuildRet(builder, result);
 
+
         //////
         LLVMPositionBuilderAtEnd(builder, entry);
-        LLVMValueRef outputString = LLVMBuildGlobalStringPtr(builder, "hello", "teststr");
+        LLVMValueRef outputString = LLVMBuildGlobalStringPtr(builder, "Hello world!", "teststr");
         //printf
         LLVMTypeRef i8Type = LLVMInt8TypeInContext(context);
         LLVMTypeRef i8ptrType = LLVMPointerType(i8Type, 0);
@@ -59,6 +62,7 @@ public class LLVMTest {
         LLVMTypeRef mainType = LLVMFunctionType(i32Type, new PointerPointer<Pointer>(0), 0, 0);
         LLVMValueRef main = LLVMAddFunction(module, "main", mainType);
         LLVMSetFunctionCallConv(main, LLVMCCallConv);
+
 
         LLVMBasicBlockRef l0 = LLVMAppendBasicBlockInContext(context, main, "l0");
         LLVMPositionBuilderAtEnd(builder, l0);
@@ -74,8 +78,9 @@ public class LLVMTest {
         LLVMBuildCall(builder, printf, callPrintfArgs, 1, "ok");
         LLVMBuildRet(builder, LLVMConstInt(i32Type, 0, 1));
         //////
-
-        LLVMSetTarget(module, "i686-pc-windows-gnu");
+        String tripleStr = "wasm32-unknown-emscripten-unknown";
+        //i686-pc-windows-gnu
+        LLVMSetTarget(module, tripleStr);
 
         LLVMDumpModule(module);
         if (LLVMVerifyModule(module, LLVMPrintMessageAction, error) != 0) {
@@ -90,7 +95,8 @@ public class LLVMTest {
         }
 
         // Stage 4: Create the relocatable object file
-        BytePointer triple = new BytePointer("i686-pc-windows-gnu");
+        //BytePointer triple = new BytePointer("i686-pc-windows-gnu");
+        BytePointer triple = new BytePointer(tripleStr);
         LLVMTargetRef target = new LLVMTargetRef();
 
         if (LLVMGetTargetFromTriple(triple, target, error) != 0) {
@@ -99,28 +105,22 @@ public class LLVMTest {
             return;
         }
 
+        System.out.println(LLVMGetTargetDescription(target).getString());
+
         String cpu = "generic";
         String cpuFeatures = "";
-        int optimizationLevel = 0;
+        int optimizationLevel = 3;
         LLVMTargetMachineRef tm = LLVMCreateTargetMachine(
                 target, triple.getString(), cpu, cpuFeatures, optimizationLevel,
                 LLVMRelocDefault, LLVMCodeModelDefault
         );
 
-        BytePointer outputFile = new BytePointer("./sum2.s");
-        if (LLVMTargetMachineEmitToFile(tm, module, outputFile, LLVMAssemblyFile, error) != 0) {
+        BytePointer outputFile2 = new BytePointer("./sum.wasm");
+        if (LLVMTargetMachineEmitToFile(tm, module, outputFile2, LLVMObjectFile, error) != 0) {
             System.err.println("Failed to emit relocatable object file: " + error.getString());
             LLVMDisposeMessage(error);
             return;
         }
-
-        BytePointer outputFile2 = new BytePointer("./sum.exe");
-        if (LLVMTargetMachineEmitToFile(tm, module, outputFile2, LLVMAssemblyFile, error) != 0) {
-            System.err.println("Failed to emit relocatable object file: " + error.getString());
-            LLVMDisposeMessage(error);
-            return;
-        }
-
         boolean loadable = lto_module_is_object_file("./sum.obj");
         System.out.println("LOAD: "+loadable);
 

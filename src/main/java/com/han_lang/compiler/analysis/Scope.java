@@ -1,5 +1,7 @@
 package com.han_lang.compiler.analysis;
 
+import com.han_lang.compiler.ast.HanCompilerParser;
+
 public interface Scope {
     /**
      * 获取指定名称的值是否已经在此定义域中定义
@@ -69,4 +71,18 @@ public interface Scope {
      * @return 全局
      */
     Global getGlobal();
+
+    /**
+     * 记录calcExpr对应的结果
+     * @param ctx calcExpr
+     * @param calc 计算结果类型
+     */
+    void recordCalcExpr(HanCompilerParser.CalcExprContext ctx, Calc calc);
+
+    /**
+     * 获取calcExpr记录
+     * @param ctx calcExpr
+     * @return 计算结果类型
+     */
+    Calc getCalcExprRecord(HanCompilerParser.CalcExprContext ctx);
 }

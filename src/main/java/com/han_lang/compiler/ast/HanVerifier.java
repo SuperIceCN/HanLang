@@ -77,6 +77,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
     @Override
     public Void visitInnerCalcExpr(HanCompilerParser.InnerCalcExprContext ctx) {
         try {
+            scope(scope(ctx), ctx.calcExpr());
             Calc.create(scope(ctx), ctx.calcExpr());
         } catch (IllegalCastException e) {
             CompileErrorUtil.illegalCast(e.line, e.column, e.to, e.from);
@@ -229,6 +230,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
         //检查赋值类型是否正确
         Calc calc = null;
         try {
+            scope(scope, ctx.calcExpr());
             calc = Calc.create(scope, ctx.calcExpr());
         } catch (IllegalCastException e) {
             CompileErrorUtil.illegalCast(e.line, e.column, e.to, e.from);
@@ -293,6 +295,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
         }
         Calc calc = null;
         try {
+            scope(scope, ctx.calcExpr());
             calc = Calc.create(scope, ctx.calcExpr());
         } catch (IllegalCastException e) {
             CompileErrorUtil.illegalCast(e.line, e.column, e.to, e.from);
@@ -425,6 +428,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
                         }
                     } else {
                         try {
+                            scope(scope, flowExpr.calcExpr());
                             Calc calc = Calc.create(scope, flowExpr.calcExpr());
                             if (!returnType.equals(calc.getType())) {
                                 CompileErrorUtil.funcReturnTypeNotMatch(flowExpr.calcExpr().getStart().getLine(), flowExpr.calcExpr().getStart().getCharPositionInLine(), returnType.type, calc.getType().type);
@@ -468,6 +472,11 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
         ast2scope.put(tree, scope);
         ast2returnType.put(tree, returnType);
         return super.visit(tree);
+    }
+
+    public Void scope(Scope scope, ParseTree tree){
+        ast2scope.put(tree, scope);
+        return null;
     }
 
     public Scope scope(ParseTree tree) {

@@ -2,6 +2,7 @@ package com.han_lang.compiler.analysis.scope;
 
 import com.google.gson.annotations.Expose;
 import com.han_lang.compiler.analysis.*;
+import com.han_lang.compiler.ast.HanCompilerParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,8 @@ public class FuncScope implements Scope {
     public List<Scope> childrenScope = new ArrayList<>();
     @Expose
     public Map<String, Value> values = new HashMap<>();
+    @Expose
+    public Map<HanCompilerParser.CalcExprContext, Calc> calcRecordMap = new HashMap<>();
 
     public FuncScope(Func func){
         this.func = func;
@@ -85,5 +88,15 @@ public class FuncScope implements Scope {
     @Override
     public Global getGlobal() {
         return parent.getGlobal();
+    }
+
+    @Override
+    public void recordCalcExpr(HanCompilerParser.CalcExprContext ctx, Calc calc) {
+        calcRecordMap.put(ctx, calc);
+    }
+
+    @Override
+    public Calc getCalcExprRecord(HanCompilerParser.CalcExprContext ctx) {
+        return calcRecordMap.get(ctx);
     }
 }

@@ -5,7 +5,7 @@ import com.han_lang.compiler.analysis.TypeSet;
 import com.han_lang.compiler.llvm.Codegen;
 import com.han_lang.util.LLVMUtil;
 
-public class TypeUseGen extends Codegen {
+public class TypeUseGen extends Codegen<Void> {
     Type type;
     boolean asRef;
 
@@ -28,9 +28,9 @@ public class TypeUseGen extends Codegen {
     }
 
     @Override
-    public String gen() {
-        //尝试拓展指定类型（如果类型在此文件中实现的话那么将可以成功扩展）
-        return processRef(_gen(type.expand()));
+    public void gen() {
+//        //尝试拓展指定类型（如果类型在此文件中实现的话那么将可以成功扩展）
+//        return processRef(_gen(type.expand()));
     }
 
     private String _gen(Type t){

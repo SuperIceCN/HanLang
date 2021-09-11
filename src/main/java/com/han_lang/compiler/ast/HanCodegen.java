@@ -1,58 +1,137 @@
 package com.han_lang.compiler.ast;
 
-import com.han_lang.compiler.analysis.Func;
-import com.han_lang.compiler.analysis.Global;
-import com.han_lang.compiler.analysis.Scope;
-import com.han_lang.compiler.analysis.Type;
+import com.han_lang.compiler.analysis.*;
 import com.han_lang.compiler.llvm.generaotr.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.Pointer;
+import org.bytedeco.llvm.LLVM.*;
 
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import static org.bytedeco.llvm.global.LLVM.*;
 
 public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
+    public final String targetTriple = "wasm64-unknown-unknown-unknown";
+
     Global global;
     String programName;
-    public ParseTreeProperty<Scope> ast2scope = new ParseTreeProperty<>();
-    public StringBuilder genCode = new StringBuilder();
+    public ParseTreeProperty<Scope> ast2scope;
     public int varIndex = 0;
     public int labelIndex = 0;
+
+    public LLVMModuleRef llvmModule;
+    public LLVMContextRef llvmContext;
+    public LLVMBuilderRef llvmBuilder;
+
+    public List<Pointer> toDispose = new LinkedList<>();
+    public Map<String, LLVMTypeRef> llvmTypeMap = new HashMap<>();
+    public Map<Value, LLVMValueRef> llvmValueMap = new HashMap<>();
 
     public HanCodegen(Global global, String programName, ParseTreeProperty<Scope> ast2scope){
         this.global = global;
         this.programName = programName;
         this.ast2scope = ast2scope;
+        //初始化llvm
+        LLVMInitializeCore(LLVMGetGlobalPassRegistry());
+        LLVMInitializeWebAssemblyAsmParser();
+        LLVMInitializeWebAssemblyAsmParser();
+        LLVMInitializeWebAssemblyAsmPrinter();
+        LLVMInitializeWebAssemblyDisassembler();
+        LLVMInitializeWebAssemblyTargetMC();
+        LLVMInitializeWebAssemblyTarget();
+        //创建llvm模块
+        this.llvmContext = LLVMContextCreate();
+        this.llvmModule = LLVMModuleCreateWithNameInContext(programName, llvmContext);
+        this.llvmBuilder = LLVMCreateBuilderInContext(llvmContext);
+        //初始化基本类型
+        initBasicLLVMTypes();
+    }
+
+    private void initBasicLLVMTypes(){
+        llvmTypeMap.put("<byte>", LLVMInt8TypeInContext(llvmContext));
+        llvmTypeMap.put("<sint>", LLVMInt16TypeInContext(llvmContext));
+        llvmTypeMap.put("<int>", LLVMInt32TypeInContext(llvmContext));
+        llvmTypeMap.put("<lint>", LLVMInt64TypeInContext(llvmContext));
+        llvmTypeMap.put("<llint>", LLVMInt128TypeInContext(llvmContext));
+        llvmTypeMap.put("<sdec>", LLVMHalfTypeInContext(llvmContext));
+        llvmTypeMap.put("<dec>", LLVMFloatTypeInContext(llvmContext));
+        llvmTypeMap.put("<ldec>", LLVMDoubleTypeInContext(llvmContext));
+        llvmTypeMap.put("<lldec>", LLVMFP128TypeInContext(llvmContext));
+        llvmTypeMap.put("<bool>", LLVMInt8TypeInContext(llvmContext));
+        llvmTypeMap.put("<null>", LLVMVoidTypeInContext(llvmContext));
+        LLVMTypeRef i8 = LLVMInt8TypeInContext(llvmContext);
+        LLVMTypeRef i8Ptr = LLVMPointerType(i8, 0);
+        llvmTypeMap.put("<string>", i8Ptr);
     }
 
     public String newAutoVar(){
-        return "%"+(varIndex++);
+        return ""+(varIndex++);
     }
 
     public String newAutoLabel(){
         return "l"+(labelIndex++);
     }
 
+    public HanCodegen addToDispose(Pointer pointer){
+        this.toDispose.add(pointer);
+        return this;
+    }
+
+    public LLVMTypeRef getLLVMType(String typeName){
+        return llvmTypeMap.get(typeName);
+    }
+
+    public void addLLVMType(String typeName, LLVMTypeRef typeRef){
+        llvmTypeMap.put(typeName, typeRef);
+    }
+
+    public LLVMValueRef getLLVMValue(Object key) {
+        return llvmValueMap.get(key);
+    }
+
+    public LLVMValueRef addLLVMValue(Value key, LLVMValueRef value) {
+        return llvmValueMap.put(key, value);
+    }
+
     @Override
     public VisitResult<Void> visitProgram(HanCompilerParser.ProgramContext ctx) {
-        //生成模块名
-        this.genCode.append("; ModuleID = '").append(programName).append("'").append("\n");
-        //声明并实现结构体
+        //配置模块
+        LLVMSetTarget(llvmModule, targetTriple);
+        //声明结构体
         for(Type each : global.typeDeclares.values()){
-            if(each.hasImpl())
-                new TypeImplGen(each).gen(this);
-            else
-                new TypeDeclareGen(each).gen(this);
+            new TypeDeclareGen(each).gen(this);
+        }
+        //实现结构体
+        for(Type each : global.typeDeclares.values()){
+            if(each.hasImpl()) new TypeImplGen(each).gen(this);
         }
         //声明函数
         for(Func each : global.funDeclares.values()){
-            if(!each.hasImpl())
-                new FuncDeclareGen(each).gen(this);
+            new FuncDeclareGen(each).gen(this);
         }
-        //实现函数
-        for(HanCompilerParser.FunctionExprContext each : ctx.functionExpr()){
-            new FuncImplGen(global.getGlobalFunc(Func.funcName(each)), each).gen(this);
+        //Main函数
+        new MainFuncGen(ctx).gen(this);
+//        //实现函数
+//        for(HanCompilerParser.FunctionExprContext each : ctx.functionExpr()){
+//            new FuncImplGen(global.getGlobalFunc(Func.funcName(each)), each).gen(this);
+//        }
+
+        //再次检查是否有误
+        BytePointer pointer = new BytePointer();
+        this.addToDispose(pointer);
+        int result = LLVMVerifyModule(llvmModule, LLVMPrintMessageAction, pointer);
+        if(result != 0){
+            System.err.println("LLVM编译错误：\n    " + pointer.getString());
         }
-        System.out.println(genCode.toString());
+
+        //输出模块IR
+        LLVMDumpModule(llvmModule);
         return VisitResult.defaultOk();
     }
 
@@ -63,8 +142,8 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
 
     @Override
     public VisitResult<String> visitVarExpr(HanCompilerParser.VarExprContext ctx) {
-        String result = new NewVarGen(ctx).generator(this).gen();
-        return new VisitResult<String>(Status.Ok).content(result);
+        //String result = new NewVarGen(ctx).generator(this).gen();
+        return new VisitResult<String>(Status.Ok);
     }
 
     @Override
@@ -88,5 +167,13 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
 
     public Scope scope(ParseTree tree) {
         return ast2scope.get(tree);
+    }
+
+    @Override
+    protected void finalize() {
+        LLVMDisposeModule(llvmModule);
+        LLVMContextDispose(llvmContext);
+        LLVMDisposeBuilder(llvmBuilder);
+        toDispose.forEach(Pointer::deallocate);
     }
 }

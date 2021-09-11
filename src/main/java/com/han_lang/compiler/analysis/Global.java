@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.han_lang.compiler.analysis.basicFunc.BasicFunc;
 import com.han_lang.compiler.analysis.basicType.BasicType;
+import com.han_lang.compiler.ast.HanCompilerParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,8 @@ public class Global implements Scope{
     public List<Scope> childrenScope = new ArrayList<>();
     @Expose
     public Map<String, Value> values = new HashMap<>();
+    @Expose
+    public Map<HanCompilerParser.CalcExprContext, Calc> calcRecordMap = new HashMap<>();
 
     public Global(){
         BasicType.init(this);
@@ -200,5 +203,15 @@ public class Global implements Scope{
     @Override
     public Global getGlobal() {
         return this;
+    }
+
+    @Override
+    public void recordCalcExpr(HanCompilerParser.CalcExprContext ctx, Calc calc) {
+        calcRecordMap.put(ctx, calc);
+    }
+
+    @Override
+    public Calc getCalcExprRecord(HanCompilerParser.CalcExprContext ctx) {
+        return calcRecordMap.get(ctx);
     }
 }
