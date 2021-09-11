@@ -21,7 +21,7 @@ public class NewGlobalVarGen extends Codegen2<LLVMValueRef, Value> {
     @Override
     public void gen() {
         Value value = codeGenerator.scope(varExpr).getValue(varExpr.ID().getText());
-        LLVMValueRef valueRef = LLVMAddGlobal(codeGenerator.llvmModule, codeGenerator.getLLVMType(value.valueType.type), value.valueName);
+        LLVMValueRef valueRef = LLVMAddGlobal(codeGenerator.llvmModule, codeGenerator.getLLVMType(value.valueType.nameWithBracket()), value.valueName);
         codeGenerator.addLLVMValue(value, valueRef);
         result(valueRef);
         extraResult(value);

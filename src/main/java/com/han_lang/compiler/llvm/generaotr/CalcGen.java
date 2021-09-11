@@ -26,11 +26,19 @@ public class CalcGen extends Codegen<LLVMValueRef> {
             if(lExprContext.literal() != null){
                 result(new LiteralGen(lExprContext.literal(), calc, scope).gen(codeGenerator).result());
             }
+            //引用其他量
+            else if(lExprContext.ID() != null){
+                result(codeGenerator.getLLVMValue(scope.getValue(lExprContext.ID().getText())));
+            }
         }else if(calcExpr instanceof HanCompilerParser.LBExprContext){
             HanCompilerParser.LBExprContext lbExprContext = (HanCompilerParser.LBExprContext) calcExpr;
             //字面量
             if(lbExprContext.literal() != null){
                 result(new LiteralGen(lbExprContext.literal(), calc, scope).gen(codeGenerator).result());
+            }
+            //引用其他量
+            else if(lbExprContext.ID() != null){
+                result(codeGenerator.getLLVMValue(scope.getValue(lbExprContext.ID().getText())));
             }
         }
     }

@@ -70,7 +70,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             Arrays.stream(func.argumentTypes.types).map(each -> Value.create(each.name, each, false)).forEach(scope::addValue);
             visit(scope, Func.funcInnerExprs(functionExpr), func.returnType, false);
         }
-        System.out.println(this.global);
+        //System.out.println(this.global);
         return null;
     }
 

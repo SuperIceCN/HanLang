@@ -91,7 +91,7 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
         llvmTypeMap.put(typeName, typeRef);
     }
 
-    public LLVMValueRef getLLVMValue(Object key) {
+    public LLVMValueRef getLLVMValue(Value key) {
         return llvmValueMap.get(key);
     }
 
