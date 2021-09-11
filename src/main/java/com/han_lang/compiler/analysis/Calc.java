@@ -327,6 +327,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.Operator_allContext ctx) {
+        if(ctx == null){
+            return null;
+        }
         if(ctx.operator2_p1() != null){
             return operatorId(ctx.operator2_p1());
         }else if(ctx.operator2_p2() != null){
@@ -341,6 +344,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.Operator1Context ctx) {
+        if(ctx == null){
+            return null;
+        }
         if (ctx.OP_Minus() != null) {
             return "-";
         } else if (ctx.OP_Plus() != null) {
@@ -353,6 +359,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.Operator2_p1Context ctx) {
+        if(ctx == null){
+            return null;
+        }
         if (ctx.OP_Equal() != null) {
             return "==";
         } else if (ctx.OP_Greater() != null) {
@@ -371,6 +380,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.Operator2_p2Context ctx) {
+        if(ctx == null){
+            return null;
+        }
         if (ctx.OP_Minus() != null) {
             return "-";
         } else if (ctx.OP_Plus() != null) {
@@ -381,6 +393,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.Operator2_p3Context ctx) {
+        if(ctx == null){
+            return null;
+        }
         if (ctx.OP_Divide() != null) {
             return "/";
         } else if (ctx.OP_Mutiply() != null) {
@@ -393,6 +408,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.Operator2_p4Context ctx) {
+        if(ctx == null){
+            return null;
+        }
         if (ctx.OP_Power() != null) {
             return "**";
         } else {
@@ -401,6 +419,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.Operator2_p5Context ctx) {
+        if(ctx == null){
+            return null;
+        }
         if (ctx.OP_And() != null) {
             return "&&";
         } else if (ctx.OP_Or() != null) {
@@ -411,6 +432,9 @@ public class Calc {
     }
 
     public static String operatorId(HanCompilerParser.OperatorEndContext ctx) {
+        if(ctx == null){
+            return null;
+        }
         if (ctx.OP_EndCall() != null) {
             return "#";
         } else {

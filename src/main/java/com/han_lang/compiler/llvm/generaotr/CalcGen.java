@@ -6,9 +6,11 @@ import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
 import com.han_lang.compiler.llvm.generaotr.calc.CastGen;
 import com.han_lang.compiler.llvm.generaotr.calc.LiteralGen;
+import com.han_lang.compiler.llvm.generaotr.calc.OperatorGen;
 import com.han_lang.compiler.llvm.generaotr.calc.VarUseGen;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
+import static com.han_lang.util.DataUtil.switchNotNull;
 import static org.bytedeco.llvm.global.LLVM.*;
 
 public class CalcGen extends Codegen<LLVMValueRef> {
@@ -45,6 +47,28 @@ public class CalcGen extends Codegen<LLVMValueRef> {
         }else if(calcExpr instanceof HanCompilerParser.CastExprContext){
             HanCompilerParser.CastExprContext castExprContext = (HanCompilerParser.CastExprContext) calcExpr;
             result(new CastGen(castExprContext, scope).gen(codeGenerator).result());
+        }else if(calcExpr instanceof HanCompilerParser.C1ExprContext){
+            HanCompilerParser.C1ExprContext c1ExprContext = (HanCompilerParser.C1ExprContext) calcExpr;
+            String operator = Calc.operatorId(c1ExprContext.operator1());
+            result(new OperatorGen(operator, c1ExprContext.calcExpr()).gen(codeGenerator).result());
+        }else if(calcExpr instanceof HanCompilerParser.C2ExprContext){
+            HanCompilerParser.C2ExprContext c2ExprContext = (HanCompilerParser.C2ExprContext) calcExpr;
+            String operator = switchNotNull(
+                    Calc.operatorId(c2ExprContext.operator2_p1()),
+                    Calc.operatorId(c2ExprContext.operator2_p2()),
+                    Calc.operatorId(c2ExprContext.operator2_p3()),
+                    Calc.operatorId(c2ExprContext.operator2_p4()),
+                    Calc.operatorId(c2ExprContext.operator2_p5())
+            );
+            result(new OperatorGen(operator, c2ExprContext.calcExpr(0), c2ExprContext.calcExpr(1)).gen(codeGenerator).result());
+        }else if(calcExpr instanceof HanCompilerParser.ECExprContext){
+            HanCompilerParser.ECExprContext ecExprContext = (HanCompilerParser.ECExprContext) calcExpr;
+            String operator = Calc.operatorId(ecExprContext.operatorEnd());
+            result(new OperatorGen(operator, ecExprContext.calcExpr()).gen(codeGenerator).result());
+        }else if(calcExpr instanceof HanCompilerParser.C2ExprBContext){
+            HanCompilerParser.C2ExprBContext c2bExprContext = (HanCompilerParser.C2ExprBContext) calcExpr;
+            String operator = Calc.operatorId(c2bExprContext.operator_all());
+            result(new OperatorGen(operator, c2bExprContext.calcExpr(0), c2bExprContext.calcExpr(1)).gen(codeGenerator).result());
         }
     }
 }

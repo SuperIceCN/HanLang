@@ -8,7 +8,6 @@ import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
 import com.han_lang.compiler.llvm.generaotr.CalcGen;
 import org.bytedeco.javacpp.PointerPointer;
-import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.bytedeco.llvm.global.LLVM.*;

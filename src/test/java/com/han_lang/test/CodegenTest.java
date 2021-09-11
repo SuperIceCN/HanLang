@@ -86,7 +86,32 @@ public class CodegenTest {
     public void codegenTestReturnInMain() {
         com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
                 "const a<int> = 23;\n" +
-                        "return a;\n", "testCaster2.hl"
+                        "return a;\n", "testReturnInMain.hl"
+        ));
+    }
+
+    @Test
+    public void codegenTestOperator1() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "const a<int> = 23 + 32;\n" +
+                        "return a;\n", "testOperator1.hl"
+        ));
+    }
+
+    @Test
+    public void codegenTestOperator2() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "const a<int> = 22;" +
+                        "const b<int> = 33 + a;" +
+                        "var c<ldec> = (b as <dec> type * 22.33) as <ldec> type;\n" +
+                        "return 0;\n", "testOperator2.hl"
+        ));
+    }
+
+    @Test
+    public void codegenTestOperator3() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "var a<bool> = !(true || false) && true;", "testOperator3.hl"
         ));
     }
 }
