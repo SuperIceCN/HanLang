@@ -114,4 +114,21 @@ public class CodegenTest {
                 "var a<bool> = !(true || false) && true;", "testOperator3.hl"
         ));
     }
+
+    @Test
+    public void codegenTestFuncPtr1() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "var a<()> = @nothing;\n" +
+                        "function nothing{/*......*/}", "testFuncPtr1.hl"
+        ));
+    }
+
+    @Test
+    public void codegenTestFuncPtr2() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "var a<<int>(<byte>, <bool>, <llint>)> = @aIntFunc;\n" +
+                        "function aIntFunc<int>(arg1<byte>, arg2<bool>, arg3<llint>){/*......*/}", "testFuncPtr2.hl"
+        ));
+    }
+
 }

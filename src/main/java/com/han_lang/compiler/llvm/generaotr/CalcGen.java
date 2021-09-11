@@ -4,10 +4,7 @@ import com.han_lang.compiler.analysis.Calc;
 import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
-import com.han_lang.compiler.llvm.generaotr.calc.CastGen;
-import com.han_lang.compiler.llvm.generaotr.calc.LiteralGen;
-import com.han_lang.compiler.llvm.generaotr.calc.OperatorGen;
-import com.han_lang.compiler.llvm.generaotr.calc.VarUseGen;
+import com.han_lang.compiler.llvm.generaotr.calc.*;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static com.han_lang.util.DataUtil.switchNotNull;
@@ -69,6 +66,8 @@ public class CalcGen extends Codegen<LLVMValueRef> {
             HanCompilerParser.C2ExprBContext c2bExprContext = (HanCompilerParser.C2ExprBContext) calcExpr;
             String operator = Calc.operatorId(c2bExprContext.operator_all());
             result(new OperatorGen(operator, c2bExprContext.calcExpr(0), c2bExprContext.calcExpr(1)).gen(codeGenerator).result());
+        }else if (calcExpr instanceof HanCompilerParser.FPtrExprContext){
+            result(new FuncPtrGen((HanCompilerParser.FPtrExprContext) calcExpr).gen(codeGenerator).result());
         }
     }
 }
