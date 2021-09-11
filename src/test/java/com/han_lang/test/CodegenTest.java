@@ -39,7 +39,13 @@ public class CodegenTest {
         com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
                 "type A<()>;type B<one<int>, two<dec>>;\n" +
                         "var b<B>;\n" +
-                        "function a<B>(c<A>){}\n", "test5.hl"
+                        "var d<int>;\n" +
+                        "function a<B>(c<A>){}\n" +
+                        "var c<B>;\n" +
+                        "b = c;\n" +
+                        "var e<int>;" +
+                        "e = 2233;" +
+                        "d = e;", "test5.hl"
         ));
     }
 

@@ -5,6 +5,7 @@ import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
 import com.han_lang.compiler.llvm.generaotr.calc.LiteralGen;
+import com.han_lang.compiler.llvm.generaotr.calc.VarUseGen;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.bytedeco.llvm.global.LLVM.*;
@@ -28,7 +29,7 @@ public class CalcGen extends Codegen<LLVMValueRef> {
             }
             //引用其他量
             else if(lExprContext.ID() != null){
-                result(codeGenerator.getLLVMValue(scope.getValue(lExprContext.ID().getText())));
+                result(new VarUseGen(scope, scope.getValue(lExprContext.ID().getText())).gen(codeGenerator).result());
             }
         }else if(calcExpr instanceof HanCompilerParser.LBExprContext){
             HanCompilerParser.LBExprContext lbExprContext = (HanCompilerParser.LBExprContext) calcExpr;
@@ -38,7 +39,7 @@ public class CalcGen extends Codegen<LLVMValueRef> {
             }
             //引用其他量
             else if(lbExprContext.ID() != null){
-                result(codeGenerator.getLLVMValue(scope.getValue(lbExprContext.ID().getText())));
+                result(new VarUseGen(scope, scope.getValue(lbExprContext.ID().getText())).gen(codeGenerator).result());
             }
         }
     }
