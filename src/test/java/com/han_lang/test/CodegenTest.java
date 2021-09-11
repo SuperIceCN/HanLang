@@ -43,8 +43,7 @@ public class CodegenTest {
                         "function a<B>(c<A>){}\n" +
                         "var c<B>;\n" +
                         "b = c;\n" +
-                        "var e<int>;" +
-                        "e = 2233;" +
+                        "var e<int> = 2233;" +
                         "d = e;", "test5.hl"
         ));
     }

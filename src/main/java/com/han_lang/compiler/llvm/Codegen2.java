@@ -1,7 +1,5 @@
 package com.han_lang.compiler.llvm;
 
-import com.han_lang.compiler.llvm.Codegen;
-
 public abstract class Codegen2<R1, R2> extends Codegen<R1> {
     protected R2 extraResult = null;
 
