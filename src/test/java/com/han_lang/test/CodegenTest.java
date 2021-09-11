@@ -65,4 +65,20 @@ public class CodegenTest {
                         "const d<bool> = true;\n", "test7.hl"
         ));
     }
+
+    @Test
+    public void codegenTestCaster1(){
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "const a<int> = 23;\n" +
+                        "var v<lint> = a as <lint> type;\n", "testCaster1.hl"
+        ));
+    }
+
+    @Test
+    public void codegenTestCaster2(){
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "const a<int> = 23;\n" +
+                        "var b<lint> = 23.322 as <lldec> type as <int> type as <lint> type;\n", "testCaster2.hl"
+        ));
+    }
 }

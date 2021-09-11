@@ -6,6 +6,7 @@ import com.google.gson.annotations.Expose;
 import com.han_lang.compiler.analysis.basicFunc.BasicFunc;
 import com.han_lang.compiler.analysis.basicType.BasicType;
 import com.han_lang.compiler.ast.HanCompilerParser;
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,8 @@ public class Global implements Scope{
     @Expose
     public List<Scope> childrenScope = new ArrayList<>();
     @Expose
+    public ParseTreeProperty<Scope> ast2Scope = new ParseTreeProperty<>();
+    @Expose
     public Map<String, Value> values = new HashMap<>();
     @Expose
     public Map<HanCompilerParser.CalcExprContext, Calc> calcRecordMap = new HashMap<>();
@@ -42,6 +45,15 @@ public class Global implements Scope{
         BasicType.init(this);
         BasicFunc.initCaster(this);
         BasicFunc.initOperator(this);
+    }
+
+    public ParseTreeProperty<Scope> getAst2Scope() {
+        return ast2Scope;
+    }
+
+    public Global setAst2Scope(ParseTreeProperty<Scope> ast2Scope) {
+        this.ast2Scope = ast2Scope;
+        return this;
     }
 
     public boolean globalTypeDeclared(String funcName){

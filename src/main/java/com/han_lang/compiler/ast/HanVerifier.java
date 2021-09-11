@@ -17,7 +17,7 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
     public ParseTreeProperty<Type> ast2returnType = new ParseTreeProperty<>();
 
     public HanVerifier(Global global){
-        this.global = global;
+        this.global = global.setAst2Scope(ast2scope);
     }
 
     @Override

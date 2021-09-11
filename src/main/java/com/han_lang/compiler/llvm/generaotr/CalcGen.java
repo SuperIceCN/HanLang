@@ -4,6 +4,7 @@ import com.han_lang.compiler.analysis.Calc;
 import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
+import com.han_lang.compiler.llvm.generaotr.calc.CastGen;
 import com.han_lang.compiler.llvm.generaotr.calc.LiteralGen;
 import com.han_lang.compiler.llvm.generaotr.calc.VarUseGen;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
@@ -41,6 +42,9 @@ public class CalcGen extends Codegen<LLVMValueRef> {
             else if(lbExprContext.ID() != null){
                 result(new VarUseGen(scope, scope.getValue(lbExprContext.ID().getText())).gen(codeGenerator).result());
             }
+        }else if(calcExpr instanceof HanCompilerParser.CastExprContext){
+            HanCompilerParser.CastExprContext castExprContext = (HanCompilerParser.CastExprContext) calcExpr;
+            result(new CastGen(castExprContext, scope).gen(codeGenerator).result());
         }
     }
 }

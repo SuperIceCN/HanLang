@@ -38,6 +38,9 @@ public class Calc {
     }
 
     public static Calc create(Scope scope, HanCompilerParser.CalcExprContext ctx) throws IllegalCastException, TypeNotFoundException, IllegalOperatorException, ValueNotFoundException, TypeNotMatchException, TypeNestingException, EmptyTempleException, FunctionArgsNotMatchException, FunctionNotFoundException {
+        if(scope.getGlobal().ast2Scope.get(ctx) == null){
+            scope.getGlobal().ast2Scope.put(ctx, scope);
+        }
         Calc calc = _create(scope, ctx);
         scope.recordCalcExpr(ctx, calc);
         return calc;
