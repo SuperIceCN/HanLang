@@ -33,6 +33,8 @@ public class MainFuncGen extends Codegen<Void> {
                 new NewGlobalVarGen(((HanCompilerParser.InnerVarExprContext) expr).varExpr()).gen(codeGenerator);
             }else if(expr instanceof HanCompilerParser.InnerSetExprContext){
                 new VarSetGen(((HanCompilerParser.InnerSetExprContext) expr).setExpr()).gen(codeGenerator);
+            }else if(expr instanceof HanCompilerParser.InnerConstExprContext){
+                new NewConstGen(((HanCompilerParser.InnerConstExprContext) expr).constAndSetExpr()).gen(codeGenerator);
             }
         }
 

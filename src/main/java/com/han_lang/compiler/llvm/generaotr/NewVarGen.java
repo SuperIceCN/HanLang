@@ -1,5 +1,6 @@
 package com.han_lang.compiler.llvm.generaotr;
 
+import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.analysis.Value;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
@@ -10,15 +11,25 @@ import org.bytedeco.llvm.LLVM.LLVMValueRef;
 import static org.bytedeco.llvm.global.LLVM.*;
 
 public class NewVarGen extends Codegen2<LLVMValueRef, Value> {
-    HanCompilerParser.VarExprContext varExpr;
+    HanCompilerParser.VarExprContext varExpr = null;
+
+    Scope scope;
+    String ID;
 
     public NewVarGen(HanCompilerParser.VarExprContext varExpr) {
         this.varExpr = varExpr;
     }
 
+    public NewVarGen(Scope scope, String ID) {
+        this.scope = scope;
+        this.ID = ID;
+    }
+
     @Override
     public void gen() {
-        Value value = codeGenerator.scope(varExpr).getValue(varExpr.ID().getText());
+        Value value;
+        if(varExpr != null) value = codeGenerator.scope(varExpr).getValue(varExpr.ID().getText());
+        else value = scope.getValue(ID);
         LLVMValueRef valueRef;
         //非基本类型应当为一个指针
         if(value.getType().isBasic()){

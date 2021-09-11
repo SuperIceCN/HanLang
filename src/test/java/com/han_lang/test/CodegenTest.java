@@ -55,4 +55,14 @@ public class CodegenTest {
                         "var myVar<B>; myVar = 20;", "test6.hl"
         ));
     }
+
+    @Test
+    public void codegenTest7(){
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "const a<int> = 23;\n" +
+                        "const b<int> = a;\n" +
+                        "const c<dec> = 2554.33;\n" +
+                        "const d<bool> = true;\n", "test7.hl"
+        ));
+    }
 }

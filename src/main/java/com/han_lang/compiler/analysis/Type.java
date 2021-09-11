@@ -205,6 +205,7 @@ public class Type {
             case "<ldec>":
             case "<lldec>":
             case "<string>":
+            case "<bool>":
             case "<null>":
                 return true;
             default:
