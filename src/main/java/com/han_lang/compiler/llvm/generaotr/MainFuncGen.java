@@ -2,6 +2,7 @@ package com.han_lang.compiler.llvm.generaotr;
 
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
+import com.han_lang.compiler.llvm.generaotr.calc.VarUseGen;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
@@ -35,6 +36,12 @@ public class MainFuncGen extends Codegen<Void> {
                 new VarSetGen(((HanCompilerParser.InnerSetExprContext) expr).setExpr()).gen(codeGenerator);
             }else if(expr instanceof HanCompilerParser.InnerConstExprContext){
                 new NewConstGen(((HanCompilerParser.InnerConstExprContext) expr).constAndSetExpr()).gen(codeGenerator);
+            }else if(expr instanceof HanCompilerParser.InnerFlowExprContext){
+                HanCompilerParser.FlowExprContext flowExpr = ((HanCompilerParser.InnerFlowExprContext) expr).flowExpr();
+                if(flowExpr.KEY_Return() != null){
+                    ret = true;
+                    LLVMBuildRet(codeGenerator.llvmBuilder, new CalcGen(flowExpr.calcExpr()).gen(codeGenerator).result());
+                }
             }
         }
 

@@ -81,4 +81,12 @@ public class CodegenTest {
                         "var b<lint> = 23.322 as <lldec> type as <int> type as <lint> type;\n", "testCaster2.hl"
         ));
     }
+
+    @Test
+    public void codegenTestReturnInMain() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "const a<int> = 23;\n" +
+                        "return a;\n", "testCaster2.hl"
+        ));
+    }
 }
