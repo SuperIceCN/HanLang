@@ -25,11 +25,11 @@ public class TypeImplGen extends Codegen<Void> {
             PointerPointer<LLVMTypeRef> elements = new PointerPointer<>(type.subtypes.size());
             codeGenerator.addToDispose(elements);
             for(int i=0;i<type.subtypes.size();i++){
-                Type t = type.subtypes.get(i).expandIfAlias();
+                Type t = type.subtypes.get(i);
                 if(t.isBasic()){
                     elements.put(i, codeGenerator.getLLVMType(t.type));
                 }else {
-                    LLVMTypeRef ptr = LLVMPointerType(codeGenerator.getLLVMType(t.nameWithBracket()), 0);
+                    LLVMTypeRef ptr = LLVMPointerType(codeGenerator.getLLVMType(t.type), 0);
                     elements.put(i, ptr);
                 }
             }

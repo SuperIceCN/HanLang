@@ -272,7 +272,7 @@ public class Type {
 
     @Override
     public String toString() {
-        return name+type;
+        return name;
     }
 
     @Override
@@ -388,5 +388,14 @@ public class Type {
         } else {
             return "<null>";
         }
+    }
+
+    public static String typeCn2En(HanCompilerParser.TypeExprContext typeExpr){
+        return typeCn2En(typeExpr.getText());
+    }
+
+    public static String typeCn2En(String type){
+        return type.replace("《", "<").replace("》", ">")
+                .replace("，", ",");
     }
 }

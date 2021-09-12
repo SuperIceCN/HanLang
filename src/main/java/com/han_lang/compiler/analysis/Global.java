@@ -60,8 +60,8 @@ public class Global implements Scope{
         return typeDeclares.containsKey(funcName);
     }
 
-    public void declareGlobalType(String funcName, Type func){
-        typeDeclares.put(funcName, func);
+    public void declareGlobalType(String typeName, Type type){
+        typeDeclares.put(typeName, type);
     }
 
     public Type getDeclaredGlobalType(String typeName){

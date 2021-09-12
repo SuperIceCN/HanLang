@@ -131,4 +131,27 @@ public class CodegenTest {
         ));
     }
 
+    @Test
+    public void codegenTestAnonymousStruct1() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "var a<_<int>>;", "testAnonymousStruct1.hl"
+        ));
+    }
+
+    @Test
+    public void codegenTestAnonymousStruct2() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "var a<_<int>, s<lldec>>;\n" +
+                        "const b<_<int>, s<lldec>> = a;", "testAnonymousStruct2.hl"
+        ));
+    }
+    @Test
+    public void codegenTestAnonymousStruct3() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "type S<_<int>>;\n" +
+                        "var a<_<int>>;\n" +
+                        "var b<S> = a;", "testAnonymousStruct3.hl"
+        ));
+    }
+
 }

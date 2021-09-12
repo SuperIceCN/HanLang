@@ -153,11 +153,33 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             }
         } else if (typeCtx instanceof HanCompilerParser.BasicArrayExprContext
                 || typeCtx instanceof HanCompilerParser.CustomArrayExprContext
-                || typeCtx instanceof HanCompilerParser.StructExprContext
                 || typeCtx instanceof HanCompilerParser.FuncTypeExprContext) {
             try {
                 String typeName = Type.typeString(typeCtx);
-                global.addGlobalType(Type.get(global, typeName, typeCtx));
+                Type type = Type.get(global, typeName, typeCtx);
+                global.declareGlobalType(typeName, type);
+                global.addGlobalType(type);
+                scope.addValue(Value.create(
+                        ctx.ID().getText(),
+                        global.getGlobalType(typeName),
+                        false
+                ));
+            } catch (TypeNotFoundException e) {
+                CompileErrorUtil.typeNotFound(ctx.typeExpr().getStart().getLine(),
+                        ctx.typeExpr().getStart().getCharPositionInLine(), ctx.typeExpr().getText());
+            } catch (TypeNestingException e) {
+                CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+            }
+        } else if(typeCtx instanceof HanCompilerParser.StructExprContext){
+            try {
+                HanCompilerParser.StructExprContext structExpr = (HanCompilerParser.StructExprContext) typeCtx;
+                StringBuilder sb = new StringBuilder(Type.typeString(typeCtx));
+                structExpr.typeEntryPart().forEach(e -> sb.append(",").append(e.ID().getText()));
+                sb.append(",").append(structExpr.typeEntryEnd().ID().getText());
+                String typeName = sb.toString();
+                Type type = Type.get(global, typeName, typeCtx);
+                global.declareGlobalType(typeName, type);
+                global.addGlobalType(type);
                 scope.addValue(Value.create(
                         ctx.ID().getText(),
                         global.getGlobalType(typeName),
@@ -210,13 +232,33 @@ public class HanVerifier extends HanCompilerBaseVisitor<Void> {
             }
         } else if (typeCtx instanceof HanCompilerParser.BasicArrayExprContext
                 || typeCtx instanceof HanCompilerParser.CustomArrayExprContext
-                || typeCtx instanceof HanCompilerParser.StructExprContext
                 || typeCtx instanceof HanCompilerParser.FuncTypeExprContext) {
             try {
                 String typeName = Type.typeString(typeCtx);
                 global.addGlobalType(Type.get(global, typeName, typeCtx));
                 scope.addValue(Value.create(
                         valueName,
+                        global.getGlobalType(typeName),
+                        true
+                ));
+            } catch (TypeNotFoundException e) {
+                CompileErrorUtil.typeNotFound(ctx.typeExpr().getStart().getLine(),
+                        ctx.typeExpr().getStart().getCharPositionInLine(), ctx.typeExpr().getText());
+            } catch (TypeNestingException e) {
+                CompileErrorUtil.typeNestingNotAllowed(e.line, e.column, e.type);
+            }
+        } else if(typeCtx instanceof HanCompilerParser.StructExprContext){
+            try {
+                HanCompilerParser.StructExprContext structExpr = (HanCompilerParser.StructExprContext) typeCtx;
+                StringBuilder sb = new StringBuilder(Type.typeString(typeCtx));
+                structExpr.typeEntryPart().forEach(e -> sb.append(",").append(e.ID().getText()));
+                sb.append(",").append(structExpr.typeEntryEnd().ID().getText());
+                String typeName = sb.toString();
+                Type type = Type.get(global, typeName, typeCtx);
+                global.declareGlobalType(typeName, type);
+                global.addGlobalType(type);
+                scope.addValue(Value.create(
+                        ctx.ID().getText(),
                         global.getGlobalType(typeName),
                         true
                 ));
