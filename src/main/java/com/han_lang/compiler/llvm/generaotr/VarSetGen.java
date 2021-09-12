@@ -5,7 +5,6 @@ import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.analysis.Value;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
-import com.han_lang.compiler.llvm.generaotr.calc.VarUseGen;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
