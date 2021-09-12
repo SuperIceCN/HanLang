@@ -4,6 +4,7 @@ import com.han_lang.compiler.analysis.Type;
 import com.han_lang.compiler.llvm.Codegen;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.bytedeco.llvm.global.LLVM.*;
 
@@ -22,15 +23,20 @@ public class TypeImplGen extends Codegen<Void> {
             type = type.global.getGlobalType(type.name);
             System.out.println(type);
             LLVMTypeRef struct = codeGenerator.getLLVMType(type.nameWithBracket());
-            PointerPointer<LLVMTypeRef> elements = new PointerPointer<>(type.subtypes.size());
+            PointerPointer<LLVMTypeRef> elements = new PointerPointer<>(type.subtypes.size() + 2);
             codeGenerator.addToDispose(elements);
+
+            //构建结构体元数据头
+            elements.put(0, codeGenerator.getLLVMType("<string>")); //结构体名称
+            elements.put(1, codeGenerator.getLLVMType("<int>")); //元素个数
+
             for(int i=0;i<type.subtypes.size();i++){
                 Type t = type.subtypes.get(i);
                 if(t.isBasic()){
-                    elements.put(i, codeGenerator.getLLVMType(t.type));
+                    elements.put(i + 2, codeGenerator.getLLVMType(t.type));
                 }else {
                     LLVMTypeRef ptr = LLVMPointerType(codeGenerator.getLLVMType(t.type), 0);
-                    elements.put(i, ptr);
+                    elements.put(i + 2, ptr);
                 }
             }
             LLVMStructSetBody(struct, elements, type.subtypes.size(), 0);
