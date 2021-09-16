@@ -96,6 +96,7 @@ public class LLVMTest {
 
         // Stage 4: Create the relocatable object file
         //BytePointer triple = new BytePointer("i686-pc-windows-gnu");
+        System.out.println(LLVMGetDefaultTargetTriple().getString());
         BytePointer triple = new BytePointer(tripleStr);
         LLVMTargetRef target = new LLVMTargetRef();
 

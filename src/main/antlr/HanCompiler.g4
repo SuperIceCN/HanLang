@@ -28,8 +28,8 @@ expr: varExpr  OP_End               #InnerVarExpr
     | whileExpr                     #InnerWhileExpr
     | flowExpr OP_End               #InnerFlowExpr
     ;
-varExpr: KEY_Var ID typeExpr;
-constAndSetExpr: KEY_Const ID typeExpr OP_Set calcExpr;
+varExpr: KEY_Var ID typeExpr OP_Init?;
+constAndSetExpr: KEY_Const ID typeExpr OP_Init? OP_Set calcExpr;
 newtypeExpr: KEY_Type ID typeExpr;
 typeEntryPart: ID typeExpr OP_Split;
 typeEntryEnd: ID typeExpr OP_Split?;
@@ -153,6 +153,7 @@ OP_Set: '=';
 OP_End: '。'+ {inType = false;} | ';'+ {inType = false;};
 OP_EndCall: '#';
 OP_At: '@';
+OP_Init: '~';
 
 OP_Braket_Left: '（' | '(';
 OP_Braket_Right: '）' | ')';

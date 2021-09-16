@@ -5,6 +5,7 @@ import com.han_lang.compiler.analysis.Global;
 import com.han_lang.compiler.analysis.Type;
 import com.han_lang.compiler.analysis.TypeSet;
 import com.han_lang.compiler.analysis.basicFunc.caster.*;
+import com.han_lang.compiler.analysis.basicFunc.gc.GC_malloc;
 import com.han_lang.compiler.analysis.basicFunc.operator.*;
 
 public class BasicFunc extends Func {
@@ -269,5 +270,9 @@ public class BasicFunc extends Func {
         global.addOperator("%", new Remain2.OperatorRemain2IntInt(global));
         global.addOperator("%", new Remain2.OperatorRemain2LIntLInt(global));
         global.addOperator("%", new Remain2.OperatorRemain2LLIntLLInt(global));
+    }
+
+    public static void initGC(Global global){
+        global.declareGlobalFunc("GC_malloc", new GC_malloc(global));
     }
 }

@@ -5,6 +5,7 @@ import com.han_lang.compiler.analysis.Scope;
 import com.han_lang.compiler.analysis.Value;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
+import com.han_lang.compiler.llvm.generaotr.calc.ValueInitGen;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
@@ -19,7 +20,6 @@ public class VarSetGen extends Codegen<Void> {
     String ID = null;
     HanCompilerParser.VarExprContext varExpr;
     HanCompilerParser.CalcExprContext calcExpr;
-
 
     public VarSetGen(HanCompilerParser.SetExprContext setExpr) {
         this.setExpr = setExpr;

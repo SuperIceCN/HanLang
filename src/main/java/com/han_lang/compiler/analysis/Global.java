@@ -45,6 +45,7 @@ public class Global implements Scope{
         BasicType.init(this);
         BasicFunc.initCaster(this);
         BasicFunc.initOperator(this);
+        BasicFunc.initGC(this);
     }
 
     public ParseTreeProperty<Scope> getAst2Scope() {

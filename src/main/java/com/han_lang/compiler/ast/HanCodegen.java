@@ -17,7 +17,7 @@ import java.util.Map;
 import static org.bytedeco.llvm.global.LLVM.*;
 
 public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
-    public final String targetTriple = "wasm64-unknown-unknown-unknown";
+    public final String targetTriple = "x86_64-pc-windows-msvc";
 
     Global global;
     String programName;
@@ -28,6 +28,9 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
     public LLVMModuleRef llvmModule;
     public LLVMContextRef llvmContext;
     public LLVMBuilderRef llvmBuilder;
+    public LLVMTargetRef llvmTarget = new LLVMTargetRef();
+    public LLVMTargetMachineRef llvmTargetMachine;
+    public LLVMTargetDataRef llvmTargetData;
 
     public List<Pointer> toDispose = new LinkedList<>();
     public Map<String, LLVMTypeRef> llvmTypeMap = new HashMap<>();
@@ -39,16 +42,26 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
         this.ast2scope = ast2scope;
         //初始化llvm
         LLVMInitializeCore(LLVMGetGlobalPassRegistry());
-        LLVMInitializeWebAssemblyAsmParser();
-        LLVMInitializeWebAssemblyAsmParser();
-        LLVMInitializeWebAssemblyAsmPrinter();
-        LLVMInitializeWebAssemblyDisassembler();
-        LLVMInitializeWebAssemblyTargetMC();
-        LLVMInitializeWebAssemblyTarget();
+        LLVMInitializeNativeAsmParser();
+        LLVMInitializeNativeAsmParser();
+        LLVMInitializeNativeAsmPrinter();
+        LLVMInitializeNativeDisassembler();
+        //LLVMInitializeNativeTargetMC();
+        LLVMInitializeNativeTarget();
+        BytePointer tt = new BytePointer(targetTriple);
+        BytePointer err = new BytePointer();
+        this.addToDispose(tt);
+        this.addToDispose(err);
+        LLVMGetTargetFromTriple(tt, llvmTarget, err);
+        this.llvmTargetMachine = LLVMCreateTargetMachine(
+                llvmTarget, targetTriple, "generic", "", 3, LLVMRelocDefault, LLVMCodeModelDefault
+        );
+        this.llvmTargetData = LLVMCreateTargetDataLayout(this.llvmTargetMachine);
         //创建llvm模块
         this.llvmContext = LLVMContextCreate();
         this.llvmModule = LLVMModuleCreateWithNameInContext(programName, llvmContext);
         this.llvmBuilder = LLVMCreateBuilderInContext(llvmContext);
+        LLVMSetModuleDataLayout(llvmModule, llvmTargetData);
         //初始化基本类型
         initBasicLLVMTypes();
     }

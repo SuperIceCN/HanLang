@@ -5,8 +5,11 @@ import com.han_lang.compiler.analysis.Value;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
 import com.han_lang.compiler.llvm.Codegen2;
+import com.han_lang.compiler.llvm.generaotr.calc.ValueInitGen;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
+
+import java.util.Objects;
 
 import static org.bytedeco.llvm.global.LLVM.*;
 
@@ -44,6 +47,11 @@ public class NewGlobalVarGen extends Codegen2<LLVMValueRef, Value> {
             valueRef = LLVMAddGlobal(codeGenerator.llvmModule, ptr, value.valueName);
         }
         codeGenerator.addLLVMValue(value, valueRef);
+
+        //如果有初始化运算符就申请内存空间
+        if(varExpr.OP_Init() != null)
+            new ValueInitGen(valueRef, Objects.requireNonNull(value).getType()).gen(codeGenerator);
+
         result(valueRef);
         extraResult(value);
     }
