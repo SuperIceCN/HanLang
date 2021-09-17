@@ -73,7 +73,7 @@ public class VarSetGen extends Codegen<Void> {
         LLVMTypeRef toLLVMType = LLVMPointerType(codeGenerator.getLLVMType(Objects.requireNonNull(to).getType().nameWithBracket()), 0);
         int fromLLVMTypeKindId = LLVMGetTypeKind(fromLLVMType);
         int toLLVMTypeKindId = LLVMGetTypeKind(toLLVMType);
-        if((fromLLVMTypeKindId == LLVMStructTypeKind || fromLLVMTypeKindId == LLVMConstantStructValueKind)
+        if(to.getType().isStruct() && (fromLLVMTypeKindId == LLVMStructTypeKind || fromLLVMTypeKindId == LLVMConstantStructValueKind)
                 && (toLLVMTypeKindId == LLVMStructTypeKind || toLLVMTypeKindId == LLVMConstantStructValueKind)){
             if(!LLVMGetStructName(fromLLVMType).getString().equals(LLVMGetStructName(toLLVMType).getString())){
                 LLVMValueRef valueRef = LLVMBuildPointerCast(codeGenerator.llvmBuilder, fromLLVMValue, toLLVMType, codeGenerator.newAutoVar());
