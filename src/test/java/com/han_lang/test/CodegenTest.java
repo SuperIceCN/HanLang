@@ -172,4 +172,12 @@ public class CodegenTest {
         ));
     }
 
+    @Test
+    public void codegenTestVarInit3() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "var a<int>~;" +
+                        "var b<string>~;\n", "testVarInit1.hl"
+        ));
+    }
+
 }

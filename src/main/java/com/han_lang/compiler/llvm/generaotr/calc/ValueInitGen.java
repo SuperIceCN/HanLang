@@ -31,8 +31,7 @@ public class ValueInitGen extends Codegen<LLVMValueRef> {
         }else if(type.isBool()){
             LLVMBuildStore(codeGenerator.llvmBuilder, LLVMConstInt(llvmType, 0, 1), llvmValue);
         }else if(type.isString()){
-            LLVMBuildStore(codeGenerator.llvmBuilder, LLVMConstArray(codeGenerator.getLLVMType("<byte>")
-                    , LLVMConstInt(codeGenerator.getLLVMType("<byte>"), '\0', 0), 1), llvmValue);
+            LLVMBuildStore(codeGenerator.llvmBuilder, LLVMBuildGlobalStringPtr(codeGenerator.llvmBuilder, "\0", codeGenerator.newAutoVar()), llvmValue);
         }else{
             long size = LLVMABISizeOfType(codeGenerator.llvmTargetData, llvmType);
             LLVMValueRef funcValue = LLVMGetNamedFunction(codeGenerator.llvmModule, "GC_malloc");
