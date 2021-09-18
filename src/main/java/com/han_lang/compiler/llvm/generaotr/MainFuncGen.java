@@ -26,6 +26,11 @@ public class MainFuncGen extends Codegen<Void> {
         LLVMBasicBlockRef block = LLVMAppendBasicBlockInContext(codeGenerator.llvmContext, mainFuncValue, "entry");
         LLVMPositionBuilderAtEnd(codeGenerator.llvmBuilder, block);
 
+        //调用初始化GC函数
+        PointerPointer<LLVMValueRef> zeroArgs = new PointerPointer<>(0);
+        codeGenerator.addToDispose(zeroArgs);
+        LLVMBuildCall(codeGenerator.llvmBuilder, LLVMGetNamedFunction(codeGenerator.llvmModule, "__GC_init"), zeroArgs, 0, "");
+
         boolean ret = false;
 
         //对每一条语句生成内容

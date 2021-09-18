@@ -44,7 +44,7 @@ public class NewVarGen extends Codegen2<LLVMValueRef, Value> {
         codeGenerator.addLLVMValue(value, valueRef);
 
         //如果有初始化运算符就申请内存空间
-        if(varExpr.OP_Init() != null)
+        if(varExpr != null && varExpr.OP_Init() != null)
             new ValueInitGen(valueRef, Objects.requireNonNull(value).getType()).gen(codeGenerator);
 
         result(valueRef);
