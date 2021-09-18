@@ -84,7 +84,7 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
     }
 
     public String newAutoVar(){
-        return ""+(varIndex++);
+        return "";
     }
 
     public String newAutoLabel(){
