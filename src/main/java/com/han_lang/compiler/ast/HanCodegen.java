@@ -98,6 +98,24 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
         return global.getGlobalType(typeName);
     }
 
+    public Func getDeclaredGlobalFunc(String funcName) {
+        return global.getDeclaredGlobalFunc(funcName);
+    }
+
+    public Func getGlobalFunc(String funcName) {
+        return global.getGlobalFunc(funcName);
+    }
+
+    public Func getFunc(String funcName) {
+        Func func = global.getGlobalFunc(funcName);
+        if(func == null) func = global.getDeclaredGlobalFunc(funcName);
+        return func;
+    }
+
+    public Global getGlobal() {
+        return global;
+    }
+
     public LLVMTypeRef getLLVMType(String typeExpr){
         return llvmTypeMap.get(typeExpr);
     }

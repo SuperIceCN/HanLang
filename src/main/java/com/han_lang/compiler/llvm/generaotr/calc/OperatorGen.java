@@ -2,16 +2,17 @@ package com.han_lang.compiler.llvm.generaotr.calc;
 
 import com.han_lang.compiler.analysis.Func;
 import com.han_lang.compiler.analysis.Scope;
+import com.han_lang.compiler.analysis.Type;
 import com.han_lang.compiler.analysis.TypeSet;
 import com.han_lang.compiler.ast.HanCompilerParser;
-import com.han_lang.compiler.llvm.Codegen;
+import com.han_lang.compiler.llvm.Codegen2;
 import com.han_lang.compiler.llvm.generaotr.CalcGen;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.bytedeco.llvm.global.LLVM.*;
 
-public class OperatorGen extends Codegen<LLVMValueRef> {
+public class OperatorGen extends Codegen2<LLVMValueRef, Type> {
     String operator;
     HanCompilerParser.CalcExprContext calcExpr1;
     HanCompilerParser.CalcExprContext calcExpr2;
@@ -47,5 +48,6 @@ public class OperatorGen extends Codegen<LLVMValueRef> {
         }
         //构建调用
         result(LLVMBuildCall(codeGenerator.llvmBuilder, funcRef, argsPtr, argsTypeSet.size(), codeGenerator.newAutoVar()));
+        extraResult(opFunc.returnType);
     }
 }

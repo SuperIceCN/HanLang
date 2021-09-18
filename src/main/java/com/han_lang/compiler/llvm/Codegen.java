@@ -31,4 +31,9 @@ public abstract class Codegen<R> {
         this.result = result;
         return this;
     }
+
+    public Codegen<R> shareResult(Codegen<R> shareTo){
+        shareTo.result(this.result);
+        return this;
+    }
 }

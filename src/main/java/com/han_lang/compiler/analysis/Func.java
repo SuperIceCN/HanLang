@@ -40,7 +40,7 @@ public class Func {
 
     public String signatureString(){
         StringBuilder sig = new StringBuilder();
-        sig.append("<").append(returnType.type.substring(1, returnType.type.length() - 1)).append(">").append("(");
+        sig.append("<").append(returnType.type, 1, returnType.type.length() - 1).append(">").append("(");
         for(int i=0;i<argumentTypes.size();i++){
             if(i!=0){
                 sig.append(",");
@@ -49,6 +49,10 @@ public class Func {
         }
         sig.append(")");
         return sig.toString();
+    }
+
+    public Type signatureType(){
+        return new Type(global, funcName, signatureString());
     }
 
     public boolean isUsed() {

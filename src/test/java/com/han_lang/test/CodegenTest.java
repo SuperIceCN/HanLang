@@ -181,4 +181,13 @@ public class CodegenTest {
         ));
     }
 
+    @Test
+    public void codegenTestVarInit4() {
+        com.han_lang.compiler.Compiler.compile(CharStreams.fromString(
+                "var b<ldec * 32> ~;\n" +
+                        "var c<ldec * 32>;\n" +
+                        "c = b\n;", "testVarInit1.hl"
+        ));
+    }
+
 }

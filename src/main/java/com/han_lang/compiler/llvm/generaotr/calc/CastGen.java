@@ -1,18 +1,15 @@
 package com.han_lang.compiler.llvm.generaotr.calc;
 
-import com.han_lang.compiler.analysis.Calc;
-import com.han_lang.compiler.analysis.Func;
-import com.han_lang.compiler.analysis.Scope;
-import com.han_lang.compiler.analysis.TypeSet;
+import com.han_lang.compiler.analysis.*;
 import com.han_lang.compiler.ast.HanCompilerParser;
-import com.han_lang.compiler.llvm.Codegen;
+import com.han_lang.compiler.llvm.Codegen2;
 import com.han_lang.compiler.llvm.generaotr.CalcGen;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.bytedeco.llvm.global.LLVM.*;
 
-public class CastGen extends Codegen<LLVMValueRef> {
+public class CastGen extends Codegen2<LLVMValueRef, Type> {
     HanCompilerParser.CastExprContext castExpr;
     Scope scope;
 
@@ -36,5 +33,6 @@ public class CastGen extends Codegen<LLVMValueRef> {
         argsPtr.put(0, argValueRef);
         codeGenerator.addToDispose(argsPtr);
         result(LLVMBuildCall(codeGenerator.llvmBuilder, funcValueRef, argsPtr, 1, codeGenerator.newAutoVar()));
+        extraResult(castCalc.getType());
     }
 }
