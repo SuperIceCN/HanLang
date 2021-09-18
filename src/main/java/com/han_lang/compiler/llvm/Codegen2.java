@@ -25,7 +25,7 @@ public abstract class Codegen2<R1, R2> extends Codegen<R1> {
     }
 
     public Codegen2<R1, R2> shareAll(Codegen2<R1, R2> shareTo){
-        shareTo.shareExtra(this).shareResult(this);
+        this.shareExtra(shareTo).shareResult(shareTo);
         return this;
     }
 }

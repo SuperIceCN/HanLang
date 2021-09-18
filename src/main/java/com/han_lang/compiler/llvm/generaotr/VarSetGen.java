@@ -2,14 +2,12 @@ package com.han_lang.compiler.llvm.generaotr;
 
 import com.han_lang.compiler.analysis.Global;
 import com.han_lang.compiler.analysis.Scope;
+import com.han_lang.compiler.analysis.Type;
 import com.han_lang.compiler.analysis.Value;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
-import com.han_lang.compiler.llvm.generaotr.calc.ValueInitGen;
 import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.llvm.LLVM.LLVMValueRef;
-
-import java.util.Objects;
 
 import static org.bytedeco.llvm.global.LLVM.*;
 
@@ -41,11 +39,17 @@ public class VarSetGen extends Codegen<Void> {
         LLVMValueRef toLLVMValue = null;
         LLVMValueRef fromLLVMValue = null;
         Value to = null;
+        Type toType = null;
+        Type fromType = null;
         if(ID != null){
             String text = ID;
             to = scope.getValue(text);
+            toType = to.getType();
             toLLVMValue = codeGenerator.getLLVMValue(to);
-            fromLLVMValue = new CalcGen(calcExpr, to.getType()).gen(codeGenerator).result();
+            CalcGen calcGen = new CalcGen(calcExpr, toType);
+            calcGen.gen(codeGenerator);
+            fromLLVMValue = calcGen.result();
+            fromType = calcGen.extraResult();
         }
         //声明合并赋值
         else if(varExpr != null){
@@ -57,6 +61,7 @@ public class VarSetGen extends Codegen<Void> {
                 //暂存生成的llvmValueRef
                 toLLVMValue = globalVarGen.result();
                 to = globalVarGen.extraResult();
+                toType = to.getType();
             }else {
                 NewVarGen varGen = new NewVarGen(varExpr);
                 varGen.gen(codeGenerator);
@@ -65,17 +70,18 @@ public class VarSetGen extends Codegen<Void> {
                 //暂存生成的llvmValueRef
                 toLLVMValue = varGen.result();
                 to = varGen.extraResult();
+                toType = to.getType();
             }
-            fromLLVMValue = new CalcGen(calcExpr, to.getType()).gen(codeGenerator).result();
+            CalcGen calcGen = new CalcGen(calcExpr, toType);
+            calcGen.gen(codeGenerator);
+            fromLLVMValue = calcGen.result();
+            fromType = calcGen.extraResult();
         }
         //如果两个值都是结构相同的结构体，但是名称不同，执行自动转换
         LLVMTypeRef fromLLVMType = LLVMTypeOf(fromLLVMValue);
-        LLVMTypeRef toLLVMType = LLVMPointerType(codeGenerator.getLLVMType(Objects.requireNonNull(to).getType().nameWithBracket()), 0);
-        int fromLLVMTypeKindId = LLVMGetTypeKind(fromLLVMType);
-        int toLLVMTypeKindId = LLVMGetTypeKind(toLLVMType);
-        if(to.getType().isStruct() && (fromLLVMTypeKindId == LLVMStructTypeKind || fromLLVMTypeKindId == LLVMConstantStructValueKind)
-                && (toLLVMTypeKindId == LLVMStructTypeKind || toLLVMTypeKindId == LLVMConstantStructValueKind)){
-            if(!LLVMGetStructName(fromLLVMType).getString().equals(LLVMGetStructName(toLLVMType).getString())){
+        LLVMTypeRef toLLVMType = LLVMPointerType(codeGenerator.getLLVMType(toType.nameWithBracket()), 0);
+        if(toType.isStruct() && fromType.isStruct()){
+            if(!toType.name.equals(fromType.name)){
                 LLVMValueRef valueRef = LLVMBuildPointerCast(codeGenerator.llvmBuilder, fromLLVMValue, toLLVMType, codeGenerator.newAutoVar());
                 LLVMBuildStore(codeGenerator.llvmBuilder, valueRef, toLLVMValue);
             }else {
