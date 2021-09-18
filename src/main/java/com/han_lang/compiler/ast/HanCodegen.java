@@ -8,7 +8,6 @@ import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.llvm.LLVM.*;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +21,6 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
     Global global;
     String programName;
     public ParseTreeProperty<Scope> ast2scope;
-    public int varIndex = 0;
     public int labelIndex = 0;
 
     public LLVMModuleRef llvmModule;
