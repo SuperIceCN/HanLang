@@ -2,6 +2,7 @@ package com.han_lang.compiler.llvm.generaotr;
 
 import com.han_lang.compiler.analysis.Calc;
 import com.han_lang.compiler.analysis.Scope;
+import com.han_lang.compiler.analysis.Type;
 import com.han_lang.compiler.ast.HanCompilerParser;
 import com.han_lang.compiler.llvm.Codegen;
 import com.han_lang.compiler.llvm.generaotr.calc.*;
@@ -12,9 +13,11 @@ import static org.bytedeco.llvm.global.LLVM.*;
 
 public class CalcGen extends Codegen<LLVMValueRef> {
     HanCompilerParser.CalcExprContext calcExpr;
+    Type expect;
 
-    public CalcGen(HanCompilerParser.CalcExprContext calcExpr){
+    public CalcGen(HanCompilerParser.CalcExprContext calcExpr, Type expect){
         this.calcExpr = calcExpr;
+        this.expect = expect;
     }
 
     @Override

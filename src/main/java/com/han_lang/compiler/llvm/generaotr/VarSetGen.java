@@ -45,7 +45,7 @@ public class VarSetGen extends Codegen<Void> {
             String text = ID;
             to = scope.getValue(text);
             toLLVMValue = codeGenerator.getLLVMValue(to);
-            fromLLVMValue = new CalcGen(calcExpr).gen(codeGenerator).result();
+            fromLLVMValue = new CalcGen(calcExpr, to.getType()).gen(codeGenerator).result();
         }
         //声明合并赋值
         else if(varExpr != null){
@@ -66,7 +66,7 @@ public class VarSetGen extends Codegen<Void> {
                 toLLVMValue = varGen.result();
                 to = varGen.extraResult();
             }
-            fromLLVMValue = new CalcGen(calcExpr).gen(codeGenerator).result();
+            fromLLVMValue = new CalcGen(calcExpr, to.getType()).gen(codeGenerator).result();
         }
         //如果两个值都是结构相同的结构体，但是名称不同，执行自动转换
         LLVMTypeRef fromLLVMType = LLVMTypeOf(fromLLVMValue);

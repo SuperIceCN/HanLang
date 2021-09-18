@@ -94,8 +94,12 @@ public class HanCodegen extends HanCompilerBaseVisitor<VisitResult<?>>{
         return this;
     }
 
-    public LLVMTypeRef getLLVMType(String typeName){
-        return llvmTypeMap.get(typeName);
+    public Type getGlobalType(String typeName){
+        return global.getGlobalType(typeName);
+    }
+
+    public LLVMTypeRef getLLVMType(String typeExpr){
+        return llvmTypeMap.get(typeExpr);
     }
 
     public void addLLVMType(String typeName, LLVMTypeRef typeRef){

@@ -41,9 +41,9 @@ public class OperatorGen extends Codegen<LLVMValueRef> {
         //构建参数数组
         PointerPointer<LLVMValueRef> argsPtr = new PointerPointer<>(argsTypeSet.size());
         codeGenerator.addToDispose(argsPtr);
-        argsPtr.put(0, new CalcGen(calcExpr1).gen(codeGenerator).result());
+        argsPtr.put(0, new CalcGen(calcExpr1, scope.getCalcExprRecord(calcExpr1).getType()).gen(codeGenerator).result());
         if(calcExpr2 != null){
-            argsPtr.put(1, new CalcGen(calcExpr2).gen(codeGenerator).result());
+            argsPtr.put(1, new CalcGen(calcExpr2, scope.getCalcExprRecord(calcExpr2).getType()).gen(codeGenerator).result());
         }
         //构建调用
         result(LLVMBuildCall(codeGenerator.llvmBuilder, funcRef, argsPtr, argsTypeSet.size(), codeGenerator.newAutoVar()));

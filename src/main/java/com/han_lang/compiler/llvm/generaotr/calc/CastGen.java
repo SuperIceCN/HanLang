@@ -30,7 +30,7 @@ public class CastGen extends Codegen<LLVMValueRef> {
         Func func = scope.getGlobal().getCaster(typeSet);
         //获取函数并生成参数和返回类型
         LLVMValueRef funcValueRef = LLVMGetNamedFunction(codeGenerator.llvmModule, func.funcName);
-        LLVMValueRef argValueRef = new CalcGen(castExpr.calcExpr()).gen(codeGenerator).result();
+        LLVMValueRef argValueRef = new CalcGen(castExpr.calcExpr(), fromCalc.getType()).gen(codeGenerator).result();
 
         PointerPointer<LLVMValueRef> argsPtr = new PointerPointer<>(1);
         argsPtr.put(0, argValueRef);

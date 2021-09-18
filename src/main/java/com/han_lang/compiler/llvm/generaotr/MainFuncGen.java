@@ -45,7 +45,7 @@ public class MainFuncGen extends Codegen<Void> {
                 HanCompilerParser.FlowExprContext flowExpr = ((HanCompilerParser.InnerFlowExprContext) expr).flowExpr();
                 if(flowExpr.KEY_Return() != null){
                     ret = true;
-                    LLVMBuildRet(codeGenerator.llvmBuilder, new CalcGen(flowExpr.calcExpr()).gen(codeGenerator).result());
+                    LLVMBuildRet(codeGenerator.llvmBuilder, new CalcGen(flowExpr.calcExpr(), codeGenerator.getGlobalType("int")).gen(codeGenerator).result());
                 }
             }
         }
